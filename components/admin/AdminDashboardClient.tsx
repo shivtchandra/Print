@@ -705,7 +705,7 @@ export function AdminDashboardClient() {
                 </div>
                 <div className="admin-item-content">
                   <div className="message-box quote">
-                    <p>"{item.quote}"</p>
+                    <p>&quot;{item.quote}&quot;</p>
                   </div>
                 </div>
                 <div className="admin-item-actions">
