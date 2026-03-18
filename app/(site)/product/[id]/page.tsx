@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
+import Link from 'next/link';
 import { getStorefrontProduct } from '@/lib/data/storefront';
 import { pageMetadata } from '@/lib/seo/metadata';
 import { EnquiryForm } from '@/components/forms/EnquiryForm';
@@ -30,7 +31,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
     <main className="product-page-wrapper">
       <div className="container">
         <nav className="breadcrumb">
-          <a href="/">Home</a> / <a href={`/${product.category}`}>{product.category.replace('-', ' ')}</a> / <span>{product.title}</span>
+          <Link href="/">Home</Link> / <Link href={`/${product.category}`}>{product.category.replace('-', ' ')}</Link> / <span>{product.title}</span>
         </nav>
 
         <section className="product-main-layout">

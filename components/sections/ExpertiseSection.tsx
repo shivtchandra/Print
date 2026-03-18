@@ -45,7 +45,7 @@ export function ExpertiseSection() {
             <h3>Our Mission</h3>
             <p>
               Founded with the vision to bring world-class IT infrastructure to Vengavasal, Foto Palace has grown into the leading hub for all things tech. 
-              We believe that high-performance computing and secure monitoring shouldn't be reserved for the big cities. 
+              We believe that high-performance computing and secure monitoring shouldn&apos;t be reserved for the big cities. 
               Our mission is to empower local businesses, creators, and families with tools that work as hard as they do.
             </p>
             <div className="stats-row">

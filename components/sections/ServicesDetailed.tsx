@@ -1,3 +1,5 @@
+import Image from 'next/image';
+
 export function ServicesDetailed() {
   const services = [
     {
@@ -41,8 +43,13 @@ export function ServicesDetailed() {
                   ))}
                 </ul>
               </div>
-              <div className="service-image-mask">
-                <img src={service.image} alt={service.title} />
+              <div className="service-image-mask relative flex-shrink-0">
+                <Image 
+                  src={service.image} 
+                  alt={service.title} 
+                  fill
+                  className="object-cover"
+                />
               </div>
             </div>
           ))}
