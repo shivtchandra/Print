@@ -3,22 +3,22 @@ export function ExpertiseSection() {
     {
       title: "15+ Years Expertise",
       desc: "Our technicians have over a decade of experience in component-level repairs and custom assembly.",
-      icon: "🛠️"
+      icon: "build"
     },
     {
       title: "Genuine Parts Only",
       desc: "We prioritize long-term reliability by using only high-quality, authentic components from trusted brands.",
-      icon: "💎"
+      icon: "verified"
     },
     {
       title: "Vengavasal's Local Support",
       desc: "No more waiting for remote support. We are right here in your neighborhood for rapid on-site assistance.",
-      icon: "🏠"
+      icon: "home"
     },
     {
       title: "Customized Solutions",
       desc: "Whether it's a budget home PC or a high-end enterprise CCTV network, we tailor everything to your needs.",
-      icon: "⚙️"
+      icon: "tune"
     }
   ];
 
@@ -33,7 +33,11 @@ export function ExpertiseSection() {
         <div className="expertise-grid">
           {points.map((point, i) => (
             <div key={i} className="expertise-card reveal">
-              <div className="expertise-icon">{point.icon}</div>
+              <div className="expertise-icon">
+                <span className="material-icons" aria-hidden="true">
+                  {point.icon}
+                </span>
+              </div>
               <h3 className="expertise-title">{point.title}</h3>
               <p className="expertise-desc">{point.desc}</p>
             </div>

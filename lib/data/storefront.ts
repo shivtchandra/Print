@@ -3,7 +3,7 @@ import { unstable_noStore as noStore } from 'next/cache';
 import { businessInfo } from '@/lib/config';
 import { categoryMeta, defaultProducts, defaultTestimonials, heroSlides } from '@/lib/data/catalog';
 import { getProduct, getSiteConfig, listProducts, listTestimonials } from '@/lib/firebase/data';
-import { ProductCategory } from '@/lib/types/entities';
+import { AboutPageContent, LaptopCustomizationConfig, ProductCategory } from '@/lib/types/entities';
 
 export async function getStorefrontProduct(id: string) {
   noStore();
@@ -48,10 +48,31 @@ export async function getStorefrontConfig() {
     const config = await getSiteConfig();
     return {
       businessInfo: config?.businessInfo || businessInfo,
-      heroSlides:
-        config?.heroSlides && config.heroSlides.length > 0 ? config.heroSlides : heroSlides
+      heroSlides: config?.heroSlides && config.heroSlides.length > 0 ? config.heroSlides : heroSlides,
+      aboutPage: config?.aboutPage || defaultAboutPage,
+      laptopCustomization: config?.laptopCustomization || defaultLaptopCustomization
     };
   } catch {
-    return { businessInfo, heroSlides };
+    return { businessInfo, heroSlides, aboutPage: defaultAboutPage, laptopCustomization: defaultLaptopCustomization };
   }
 }
+
+const defaultAboutPage: AboutPageContent = {
+  heroTitle: 'About Foto Palace',
+  introParagraphs: [
+    'Foto Palace is your trusted local tech partner in Vengavasal. We are known for reliable product recommendations, honest pricing, and quick support.',
+    'From laptops and gaming desktops to printers, CCTV systems, custom assembled desktops, and IT accessories, we help individuals and businesses choose the right technology with confidence.',
+    'We do PC customization end-to-end, and we are the best at tailoring builds to your requirements. Choose the right options and you will always get the best price for your setup.'
+  ],
+  whyTitle: 'Why Customers Choose Us',
+  whyBullets: [
+    'PC and laptop customization built around your requirements',
+    'Local after-sales and setup support',
+    'We find the right parts so you get the best price',
+    'Bulk pricing for offices and institutions'
+  ]
+};
+
+const defaultLaptopCustomization: LaptopCustomizationConfig = {
+  categories: []
+};

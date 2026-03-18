@@ -82,7 +82,25 @@ const defaultConfigForm: ConfigForm = {
     copyright: '',
     googleMapEmbed: ''
   },
-  heroSlides: []
+  heroSlides: [],
+  aboutPage: {
+    heroTitle: 'About Foto Palace',
+    introParagraphs: [
+      'Foto Palace is your trusted local tech partner in Vengavasal. We are known for reliable product recommendations, honest pricing, and quick support.',
+      'From laptops and gaming desktops to printers, CCTV systems, custom assembled desktops, and IT accessories, we help individuals and businesses choose the right technology with confidence.',
+      'We do PC customization end-to-end, and we are the best at tailoring builds to your requirements. Choose the right options and you will always get the best price for your setup.'
+    ],
+    whyTitle: 'Why Customers Choose Us',
+    whyBullets: [
+      'PC and laptop customization built around your requirements',
+      'Local after-sales and setup support',
+      'We find the right parts so you get the best price',
+      'Bulk pricing for offices and institutions'
+    ]
+  },
+  laptopCustomization: {
+    categories: []
+  }
 };
 
 export function AdminDashboardClient() {
@@ -185,7 +203,17 @@ export function AdminDashboardClient() {
         setProducts(productRes.products || []);
         setTestimonials(testimonialRes.testimonials || []);
         if (configRes.config) {
-          setConfigForm(configRes.config);
+          setConfigForm({
+            ...defaultConfigForm,
+            ...configRes.config,
+            businessInfo: { ...defaultConfigForm.businessInfo, ...(configRes.config.businessInfo || {}) },
+            aboutPage: { ...defaultConfigForm.aboutPage, ...(configRes.config.aboutPage || {}) },
+            laptopCustomization: {
+              ...defaultConfigForm.laptopCustomization,
+              ...(configRes.config.laptopCustomization || {}),
+              categories: configRes.config.laptopCustomization?.categories || defaultConfigForm.laptopCustomization.categories
+            }
+          });
         }
       } catch (err) {
         setStatus(err instanceof Error ? err.message : 'Failed to load admin data.');
@@ -962,6 +990,223 @@ export function AdminDashboardClient() {
                       </div>
                     </article>
                   ))}
+                </div>
+              </div>
+
+              <div className="form-section mt-10">
+                <h3>About Page Content</h3>
+                <div className="form-grid-inner">
+                  <label>
+                    Hero Title
+                    <input
+                      required
+                      value={configForm.aboutPage.heroTitle}
+                      onChange={(e) =>
+                        setConfigForm((prev) => ({
+                          ...prev,
+                          aboutPage: { ...prev.aboutPage, heroTitle: e.target.value }
+                        }))
+                      }
+                    />
+                  </label>
+
+                  <label>
+                    Why Title
+                    <input
+                      required
+                      value={configForm.aboutPage.whyTitle}
+                      onChange={(e) =>
+                        setConfigForm((prev) => ({
+                          ...prev,
+                          aboutPage: { ...prev.aboutPage, whyTitle: e.target.value }
+                        }))
+                      }
+                    />
+                  </label>
+
+                  <label className="full-width">
+                    Intro Paragraphs (separate by blank line)
+                    <textarea
+                      required
+                      rows={4}
+                      value={configForm.aboutPage.introParagraphs.join('\n\n')}
+                      onChange={(e) => {
+                        const paragraphs = e.target.value
+                          .split(/\n{2,}/g)
+                          .map((p) => p.trim())
+                          .filter(Boolean);
+                        setConfigForm((prev) => ({
+                          ...prev,
+                          aboutPage: { ...prev.aboutPage, introParagraphs: paragraphs.length ? paragraphs : prev.aboutPage.introParagraphs }
+                        }));
+                      }}
+                    />
+                  </label>
+
+                  <label className="full-width">
+                    Why Bullets (one per line)
+                    <textarea
+                      required
+                      rows={3}
+                      value={configForm.aboutPage.whyBullets.join('\n')}
+                      onChange={(e) => {
+                        const bullets = e.target.value
+                          .split('\n')
+                          .map((b) => b.trim())
+                          .filter(Boolean);
+                        setConfigForm((prev) => ({
+                          ...prev,
+                          aboutPage: { ...prev.aboutPage, whyBullets: bullets.length ? bullets : prev.aboutPage.whyBullets }
+                        }));
+                      }}
+                    />
+                  </label>
+                </div>
+              </div>
+
+              <div className="form-section mt-10">
+                <div className="flex-between">
+                  <h3>Laptop Customization (Estimates)</h3>
+                  <button
+                    type="button"
+                    className="secondary-btn sm"
+                    onClick={() => {
+                      setConfigForm((prev) => ({
+                        ...prev,
+                        laptopCustomization: {
+                          ...prev.laptopCustomization,
+                          categories: [
+                            ...prev.laptopCustomization.categories,
+                            { name: '', options: [{ label: '', price: 0 }] }
+                          ]
+                        }
+                      }));
+                    }}
+                  >
+                    + Add Category
+                  </button>
+                </div>
+
+                <p className="muted-text" style={{ marginTop: '0.75rem' }}>
+                  These options will show on every laptop product page. Customers can select one option per category and see an estimated total.
+                </p>
+
+                <div className="slides-container">
+                  {configForm.laptopCustomization.categories.map((category, catIndex) => (
+                    <article key={category.id || `${category.name}-${catIndex}`} className="admin-sub-card">
+                      <div className="flex-between">
+                        <h4>Category {catIndex + 1}</h4>
+                        <button
+                          type="button"
+                          className="danger-btn sm"
+                          onClick={() => {
+                            const next = [...configForm.laptopCustomization.categories];
+                            next.splice(catIndex, 1);
+                            setConfigForm((prev) => ({ ...prev, laptopCustomization: { ...prev.laptopCustomization, categories: next } }));
+                          }}
+                        >
+                          Remove
+                        </button>
+                      </div>
+
+                      <div className="form-grid-inner">
+                        <label className="full-width">
+                          Category Name
+                          <input
+                            required
+                            value={category.name}
+                            onChange={(e) => {
+                              const nextCats = [...configForm.laptopCustomization.categories];
+                              nextCats[catIndex] = { ...nextCats[catIndex], name: e.target.value };
+                              setConfigForm((prev) => ({ ...prev, laptopCustomization: { ...prev.laptopCustomization, categories: nextCats } }));
+                            }}
+                          />
+                        </label>
+                      </div>
+
+                      <div className="form-section mt-10">
+                        <div className="flex-between">
+                          <h3 style={{ fontSize: '1.1rem' }}>Options</h3>
+                          <button
+                            type="button"
+                            className="secondary-btn sm"
+                            onClick={() => {
+                              const nextCats = [...configForm.laptopCustomization.categories];
+                              nextCats[catIndex] = {
+                                ...nextCats[catIndex],
+                                options: [...nextCats[catIndex].options, { label: '', price: 0 }]
+                              };
+                              setConfigForm((prev) => ({ ...prev, laptopCustomization: { ...prev.laptopCustomization, categories: nextCats } }));
+                            }}
+                          >
+                            + Add Option
+                          </button>
+                        </div>
+
+                        <div className="slides-container">
+                          {category.options.map((option, optIndex) => (
+                            <article key={option.id || `${option.label}-${optIndex}`} className="admin-sub-card">
+                              <div className="flex-between">
+                                <h4>Option {optIndex + 1}</h4>
+                                <button
+                                  type="button"
+                                  className="danger-btn sm"
+                                  onClick={() => {
+                                    const nextCats = [...configForm.laptopCustomization.categories];
+                                    const nextOpts = [...nextCats[catIndex].options];
+                                    nextOpts.splice(optIndex, 1);
+                                    nextCats[catIndex] = { ...nextCats[catIndex], options: nextOpts.length ? nextOpts : [{ label: '', price: 0 }] };
+                                    setConfigForm((prev) => ({ ...prev, laptopCustomization: { ...prev.laptopCustomization, categories: nextCats } }));
+                                  }}
+                                >
+                                  Remove
+                                </button>
+                              </div>
+
+                              <div className="form-grid-inner">
+                                <label>
+                                  Option Label
+                                  <input
+                                    required
+                                    value={option.label}
+                                    onChange={(e) => {
+                                      const nextCats = [...configForm.laptopCustomization.categories];
+                                      const nextOpts = [...nextCats[catIndex].options];
+                                      nextOpts[optIndex] = { ...nextOpts[optIndex], label: e.target.value };
+                                      nextCats[catIndex] = { ...nextCats[catIndex], options: nextOpts };
+                                      setConfigForm((prev) => ({ ...prev, laptopCustomization: { ...prev.laptopCustomization, categories: nextCats } }));
+                                    }}
+                                  />
+                                </label>
+
+                                <label>
+                                  Price (+)
+                                  <input
+                                    required
+                                    type="number"
+                                    min={0}
+                                    value={option.price}
+                                    onChange={(e) => {
+                                      const nextCats = [...configForm.laptopCustomization.categories];
+                                      const nextOpts = [...nextCats[catIndex].options];
+                                      nextOpts[optIndex] = { ...nextOpts[optIndex], price: Number(e.target.value) || 0 };
+                                      nextCats[catIndex] = { ...nextCats[catIndex], options: nextOpts };
+                                      setConfigForm((prev) => ({ ...prev, laptopCustomization: { ...prev.laptopCustomization, categories: nextCats } }));
+                                    }}
+                                  />
+                                </label>
+                              </div>
+                            </article>
+                          ))}
+                        </div>
+                      </div>
+                    </article>
+                  ))}
+                  {configForm.laptopCustomization.categories.length === 0 && (
+                    <p className="muted-text">
+                      No customization categories yet. Add RAM / Storage / GPU upgrade options to enable estimates on laptop pages.
+                    </p>
+                  )}
                 </div>
               </div>
 

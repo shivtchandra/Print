@@ -2,11 +2,47 @@ import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { getStorefrontProduct } from '@/lib/data/storefront';
+import { getStorefrontConfig } from '@/lib/data/storefront';
 import { pageMetadata } from '@/lib/seo/metadata';
 import { EnquiryForm } from '@/components/forms/EnquiryForm';
+import { LaptopCustomizationPanel } from '@/components/product/LaptopCustomizationPanel';
 
 interface ProductPageProps {
   params: Promise<{ id: string }>;
+}
+
+function parsePriceRangeToBase(priceRange: string) {
+  // Supports formats like:
+  // - "₹78,000 - ₹95,000"
+  // - "₹80,000+"
+  // - "₹1.5L+"
+  const normalized = (priceRange || '').replace(/\s/g, '');
+  if (!normalized) return 0;
+
+  const values: number[] = [];
+
+  const lakhMatches = [...normalized.matchAll(/(\d+(?:\.\d+)?)L\+?/gi)].map((m) => m[1]);
+  for (const v of lakhMatches) {
+    const n = Number(v);
+    if (Number.isFinite(n)) values.push(Math.round(n * 100000));
+  }
+
+  // Remove lakh fragments first so we don't accidentally capture the "1" from "1.5L".
+  const withoutLakh = normalized.replace(/(\d+(?:\.\d+)?)L\+?/gi, '');
+  const rupeeMatches = [...withoutLakh.matchAll(/(\d[\d,]*)(?:\.\d+)?/g)].map((m) => m[1]);
+  for (const v of rupeeMatches) {
+    const digits = v.replace(/,/g, '');
+    const n = Number(digits);
+    if (Number.isFinite(n)) values.push(Math.round(n));
+  }
+
+  if (values.length >= 2) {
+    const sorted = values.sort((a, b) => a - b);
+    return Math.round((sorted[0] + sorted[sorted.length - 1]) / 2);
+  }
+
+  if (values.length === 1) return values[0];
+  return 0;
 }
 
 export async function generateMetadata({ params }: ProductPageProps) {
@@ -24,10 +60,14 @@ export async function generateMetadata({ params }: ProductPageProps) {
 export default async function ProductPage({ params }: ProductPageProps) {
   const { id } = await params;
   const product = await getStorefrontProduct(id);
+  const config = await getStorefrontConfig();
 
   if (!product) {
     notFound();
   }
+
+  const laptopCustomization = config.laptopCustomization?.categories ?? [];
+  const basePrice = parsePriceRangeToBase(product.priceRange);
 
   return (
     <main className="product-page-wrapper">
@@ -67,7 +107,23 @@ export default async function ProductPage({ params }: ProductPageProps) {
               <div className="brand-link">Visit the {product.brand} Store</div>
               <h1 className="product-display-title">{product.title}</h1>
               <div className="rating-placeholder">
-                <span className="stars">★★★★★</span>
+                <span className="stars" aria-label="5 star rating">
+                  <span className="material-icons" aria-hidden="true">
+                    star
+                  </span>
+                  <span className="material-icons" aria-hidden="true">
+                    star
+                  </span>
+                  <span className="material-icons" aria-hidden="true">
+                    star
+                  </span>
+                  <span className="material-icons" aria-hidden="true">
+                    star
+                  </span>
+                  <span className="material-icons" aria-hidden="true">
+                    star
+                  </span>
+                </span>
                 <span className="count">4.9 | 15 ratings</span>
               </div>
             </div>
@@ -81,6 +137,13 @@ export default async function ProductPage({ params }: ProductPageProps) {
             </div>
 
             <div className="divider"></div>
+
+            {product.category === 'laptops' && laptopCustomization.length > 0 && (
+              <>
+                <LaptopCustomizationPanel categories={laptopCustomization} basePrice={basePrice} />
+                <div className="divider"></div>
+              </>
+            )}
 
             <div className="features-bullets">
               <h3>About this item</h3>
@@ -126,8 +189,18 @@ export default async function ProductPage({ params }: ProductPageProps) {
               </div>
               
               <div className="secure-info">
-                <span>🛡️ Local Warranty</span>
-                <span>🚚 Prompt Support</span>
+                <span className="secure-item">
+                  <span className="material-icons" aria-hidden="true">
+                    security
+                  </span>
+                  Local Warranty
+                </span>
+                <span className="secure-item">
+                  <span className="material-icons" aria-hidden="true">
+                    support_agent
+                  </span>
+                  Prompt Support
+                </span>
               </div>
             </div>
           </aside>

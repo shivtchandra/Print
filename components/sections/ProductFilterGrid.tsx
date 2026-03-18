@@ -1,12 +1,16 @@
 'use client';
 
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 
 import { Product } from '@/lib/types/entities';
+import { ProductCategory } from '@/lib/types/entities';
+import { categoryMeta } from '@/lib/data/catalog';
 
 interface ProductFilterGridProps {
   products: Product[];
+  currentCategory: ProductCategory;
 }
 
 function parsePriceBand(priceRange: string) {
@@ -23,7 +27,9 @@ const ChevronDown = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
 );
 
-export function ProductFilterGrid({ products }: ProductFilterGridProps) {
+export function ProductFilterGrid({ products, currentCategory }: ProductFilterGridProps) {
+  const router = useRouter();
+  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [brand, setBrand] = useState('all');
   const [priceBand, setPriceBand] = useState('all');
   const [specQuery, setSpecQuery] = useState('');
@@ -45,15 +51,50 @@ export function ProductFilterGrid({ products }: ProductFilterGridProps) {
   const [isBrandOpen, setIsBrandOpen] = useState(false);
   const [isPriceOpen, setIsPriceOpen] = useState(false);
 
+  const categories = useMemo(() => Object.keys(categoryMeta) as ProductCategory[], []);
+
   return (
     <section className="section">
       <div className="container">
         <div className="filter-bar reveal">
+          {/* Category switcher */}
+          <div className="custom-dropdown">
+            <button
+              className="dropdown-toggle"
+              onClick={() => {
+                setIsCategoryOpen(!isCategoryOpen);
+                setIsBrandOpen(false);
+                setIsPriceOpen(false);
+              }}
+            >
+              {categoryMeta[currentCategory]?.label || 'Products'}
+              <span className={`arrow ${isCategoryOpen ? 'up' : ''}`}>
+                <ChevronDown />
+              </span>
+            </button>
+            {isCategoryOpen && (
+              <ul className="dropdown-menu">
+                {categories.map((option) => (
+                  <li
+                    key={option}
+                    onClick={() => {
+                      setIsCategoryOpen(false);
+                      router.push(`/${option}`);
+                    }}
+                    className={option === currentCategory ? 'active' : ''}
+                  >
+                    {categoryMeta[option].label}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
           {/* Custom Brand Dropdown */}
           <div className="custom-dropdown">
             <button 
               className="dropdown-toggle" 
-              onClick={() => { setIsBrandOpen(!isBrandOpen); setIsPriceOpen(false); }}
+              onClick={() => { setIsBrandOpen(!isBrandOpen); setIsPriceOpen(false); setIsCategoryOpen(false); }}
             >
               {brand === 'all' ? 'All Brands' : brand}
               <span className={`arrow ${isBrandOpen ? 'up' : ''}`}><ChevronDown /></span>
@@ -77,7 +118,7 @@ export function ProductFilterGrid({ products }: ProductFilterGridProps) {
           <div className="custom-dropdown">
             <button 
               className="dropdown-toggle" 
-              onClick={() => { setIsPriceOpen(!isPriceOpen); setIsBrandOpen(false); }}
+              onClick={() => { setIsPriceOpen(!isPriceOpen); setIsBrandOpen(false); setIsCategoryOpen(false); }}
             >
               {priceBand === 'all' ? 'All Prices' : 
                priceBand.charAt(0).toUpperCase() + priceBand.slice(1)}

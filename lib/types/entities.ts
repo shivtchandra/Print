@@ -62,6 +62,29 @@ export interface HeroSlide {
   image: string;
 }
 
+export interface LaptopCustomizationOption {
+  id?: string;
+  label: string;
+  price: number;
+}
+
+export interface LaptopCustomizationCategory {
+  id?: string;
+  name: string;
+  options: LaptopCustomizationOption[];
+}
+
+export interface LaptopCustomizationConfig {
+  categories: LaptopCustomizationCategory[];
+}
+
+export interface AboutPageContent {
+  heroTitle: string;
+  introParagraphs: string[];
+  whyTitle: string;
+  whyBullets: string[];
+}
+
 export interface BusinessInfo {
   name: string;
   tagline: string;
@@ -79,4 +102,6 @@ export interface SiteConfig {
   id?: string;
   businessInfo: BusinessInfo;
   heroSlides: HeroSlide[];
+  aboutPage: AboutPageContent;
+  laptopCustomization: LaptopCustomizationConfig;
 }
