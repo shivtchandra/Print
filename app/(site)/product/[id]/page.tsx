@@ -6,11 +6,12 @@ import { pageMetadata } from '@/lib/seo/metadata';
 import { EnquiryForm } from '@/components/forms/EnquiryForm';
 
 interface ProductPageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export async function generateMetadata({ params }: ProductPageProps) {
-  const product = await getStorefrontProduct(params.id);
+  const { id } = await params;
+  const product = await getStorefrontProduct(id);
   if (!product) return {};
 
   return pageMetadata({
@@ -21,7 +22,8 @@ export async function generateMetadata({ params }: ProductPageProps) {
 }
 
 export default async function ProductPage({ params }: ProductPageProps) {
-  const product = await getStorefrontProduct(params.id);
+  const { id } = await params;
+  const product = await getStorefrontProduct(id);
 
   if (!product) {
     notFound();
