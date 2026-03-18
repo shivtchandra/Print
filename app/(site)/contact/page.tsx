@@ -1,15 +1,12 @@
+'use client';
+
 import { ContactForm } from '@/components/forms/ContactForm';
 import { TrackedAnchor } from '@/components/analytics/TrackedAnchor';
-import { businessInfo } from '@/lib/config';
-import { pageMetadata } from '@/lib/seo/metadata';
+import { useConfig } from '@/components/providers/ConfigProvider';
 
-export const metadata = pageMetadata({
-  title: 'Contact Foto Palace',
-  description: 'Visit Foto Palace at Gar-Ali near Eleye Cinema, Vengavasal, Tamil Nadu.',
-  canonical: '/contact'
-});
 
 export default function ContactPage() {
+  const { businessInfo } = useConfig();
   return (
     <>
       <section className="section page-intro">

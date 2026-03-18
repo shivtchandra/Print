@@ -2,7 +2,7 @@
 
 import { onAuthStateChanged, signOut, User } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
-import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
 
 import {
   STATIC_ADMIN_EMAIL,
@@ -12,7 +12,7 @@ import {
 } from '@/lib/admin/static-admin';
 import { clientAuth, clientFirebaseReady } from '@/lib/firebase/client';
 import { toCsv } from '@/lib/utils/format';
-import { Lead, Product, ProductCategory, Testimonial } from '@/lib/types/entities';
+import { Lead, Product, ProductCategory, SiteConfig, Testimonial } from '@/lib/types/entities';
 
 const categories: ProductCategory[] = [
   'laptops',
@@ -31,6 +31,7 @@ type ProductForm = {
   specs: string;
   features: string;
   images: string;
+  description: string;
   isFeatured: boolean;
   displayOrder: number;
   status: 'active' | 'inactive';
@@ -44,6 +45,8 @@ type TestimonialForm = {
   isPublished: boolean;
 };
 
+type ConfigForm = SiteConfig;
+
 const defaultProductForm: ProductForm = {
   title: '',
   category: 'laptops',
@@ -52,6 +55,7 @@ const defaultProductForm: ProductForm = {
   specs: '',
   features: '',
   images: '',
+  description: '',
   isFeatured: false,
   displayOrder: 0,
   status: 'active'
@@ -65,9 +69,25 @@ const defaultTestimonialForm: TestimonialForm = {
   isPublished: true
 };
 
+const defaultConfigForm: ConfigForm = {
+  businessInfo: {
+    name: '',
+    tagline: '',
+    description: '',
+    phones: [],
+    whatsapp: '',
+    email: '',
+    address: '',
+    hours: '',
+    copyright: '',
+    googleMapEmbed: ''
+  },
+  heroSlides: []
+};
+
 export function AdminDashboardClient() {
   const router = useRouter();
-  const [tab, setTab] = useState<'leads' | 'products' | 'testimonials'>('leads');
+  const [tab, setTab] = useState<'leads' | 'products' | 'testimonials' | 'settings'>('leads');
   const [token, setToken] = useState<string>('');
   const [authReady, setAuthReady] = useState(false);
   const [user, setUser] = useState<User | null>(null);
@@ -86,6 +106,8 @@ export function AdminDashboardClient() {
 
   const [testimonialForm, setTestimonialForm] = useState<TestimonialForm>(defaultTestimonialForm);
   const [editingTestimonialId, setEditingTestimonialId] = useState<string | null>(null);
+
+  const [configForm, setConfigForm] = useState<ConfigForm>(defaultConfigForm);
 
   const [status, setStatus] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -123,6 +145,28 @@ export function AdminDashboardClient() {
     return unsubscribe;
   }, [router]);
 
+
+  const withAuthFetch = useCallback(
+    async (url: string, options: RequestInit) => {
+      const response = await fetch(url, {
+        ...options,
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+          ...(options.headers || {})
+        }
+      });
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.error || 'Request failed');
+      }
+
+      return response.json().catch(() => ({}));
+    },
+    [token]
+  );
+
   useEffect(() => {
     if (!token) return;
 
@@ -130,38 +174,33 @@ export function AdminDashboardClient() {
       setLoading(true);
 
       try {
-        const [leadRes, productRes, testimonialRes] = await Promise.all([
-          fetch('/api/admin/leads', {
-            headers: { Authorization: `Bearer ${token}` }
-          }),
-          fetch('/api/admin/products', {
-            headers: { Authorization: `Bearer ${token}` }
-          }),
-          fetch('/api/admin/testimonials', {
-            headers: { Authorization: `Bearer ${token}` }
-          })
+        const [leadRes, productRes, testimonialRes, configRes] = await Promise.all([
+          withAuthFetch('/api/admin/leads', { method: 'GET' }),
+          withAuthFetch('/api/admin/products', { method: 'GET' }),
+          withAuthFetch('/api/admin/testimonials', { method: 'GET' }),
+          withAuthFetch('/api/admin/config', { method: 'GET' })
         ]);
 
-        const leadData = await leadRes.json();
-        const productData = await productRes.json();
-        const testimonialData = await testimonialRes.json();
-
-        setLeads(leadData.leads || []);
-        setProducts(productData.products || []);
-        setTestimonials(testimonialData.testimonials || []);
-      } catch {
-        setStatus('Failed to load admin data.');
+        setLeads(leadRes.leads || []);
+        setProducts(productRes.products || []);
+        setTestimonials(testimonialRes.testimonials || []);
+        if (configRes.config) {
+          setConfigForm(configRes.config);
+        }
+      } catch (err) {
+        setStatus(err instanceof Error ? err.message : 'Failed to load admin data.');
       } finally {
         setLoading(false);
       }
     }
 
     void fetchDashboardData();
-  }, [token]);
+  }, [token, withAuthFetch]);
 
+  // filteredLeads calculation...
   const filteredLeads = useMemo(() => {
     return leads.filter((lead) => {
-      const text = `${lead.name} ${lead.phone} ${lead.email || ''} ${lead.message}`.toLowerCase();
+      const text = `${lead.name || ''} ${lead.phone || ''} ${lead.email || ''} ${lead.message || ''}`.toLowerCase();
       const matchesSearch = text.includes(searchLead.toLowerCase());
       const matchesCategory = leadCategory === 'all' || lead.category === leadCategory;
       return matchesSearch && matchesCategory;
@@ -200,24 +239,6 @@ export function AdminDashboardClient() {
     URL.revokeObjectURL(url);
   }
 
-  async function withAuthFetch(url: string, options: RequestInit) {
-    const response = await fetch(url, {
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-        ...(options.headers || {})
-      }
-    });
-
-    if (!response.ok) {
-      const data = await response.json().catch(() => ({}));
-      throw new Error(data.error || 'Request failed');
-    }
-
-    return response.json().catch(() => ({}));
-  }
-
   async function handleProductSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!token) return;
@@ -225,13 +246,14 @@ export function AdminDashboardClient() {
     try {
       setStatus(null);
       const payload = {
-        title: productForm.title,
+        title: productForm.title.trim(),
         category: productForm.category,
-        brand: productForm.brand,
-        priceRange: productForm.priceRange,
+        brand: productForm.brand.trim(),
+        priceRange: productForm.priceRange.trim(),
         specs: productForm.specs.split(',').map((spec) => spec.trim()).filter(Boolean),
         features: productForm.features.split(',').map((feature) => feature.trim()).filter(Boolean),
         images: productForm.images.split(',').map((image) => image.trim()).filter(Boolean),
+        description: productForm.description.trim(),
         isFeatured: productForm.isFeatured,
         displayOrder: Number(productForm.displayOrder),
         status: productForm.status
@@ -319,6 +341,26 @@ export function AdminDashboardClient() {
     }
   }
 
+  async function handleConfigSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!token) return;
+
+    setLoading(true);
+    setStatus(null);
+
+    try {
+      await withAuthFetch('/api/admin/config', {
+        method: 'PUT',
+        body: JSON.stringify(configForm)
+      });
+      setStatus('Site configuration updated successfully.');
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : 'Failed to save configuration.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
   if (!authReady) {
     return <p>Loading admin session...</p>;
   }
@@ -370,6 +412,12 @@ export function AdminDashboardClient() {
           onClick={() => setTab('testimonials')}
         >
           Testimonials
+        </button>
+        <button
+          className={tab === 'settings' ? 'tab active' : 'tab'}
+          onClick={() => setTab('settings')}
+        >
+          Settings
         </button>
       </div>
 
@@ -498,6 +546,15 @@ export function AdminDashboardClient() {
               />
             </label>
             <label>
+              Product Description
+              <textarea
+                value={productForm.description}
+                onChange={(event) => setProductForm((prev) => ({ ...prev, description: event.target.value }))}
+                rows={4}
+                placeholder="Detailed description of the product..."
+              />
+            </label>
+            <label>
               Specs (comma separated)
               <input
                 required
@@ -599,6 +656,7 @@ export function AdminDashboardClient() {
                         specs: product.specs.join(', '),
                         features: product.features.join(', '),
                         images: product.images.join(', '),
+                        description: product.description || '',
                         isFeatured: product.isFeatured,
                         displayOrder: product.displayOrder,
                         status: product.status
@@ -732,6 +790,188 @@ export function AdminDashboardClient() {
               </article>
             ))}
           </div>
+        </section>
+      )}
+
+      {tab === 'settings' && (
+        <section className="admin-card">
+          <h2>Site Settings</h2>
+          <p className="muted-text">Update business details and homepage carousel content.</p>
+
+          <form className="admin-form settings-form" onSubmit={handleConfigSubmit}>
+            <div className="full-width">
+              <div className="form-section">
+                <h3>Business Information</h3>
+                <div className="form-grid-inner">
+                  <label>
+                    Company Name
+                    <input
+                      required
+                      value={configForm.businessInfo.name}
+                      onChange={(e) =>
+                        setConfigForm((prev) => ({
+                          ...prev,
+                          businessInfo: { ...prev.businessInfo, name: e.target.value }
+                        }))
+                      }
+                    />
+                  </label>
+                  <label>
+                    WhatsApp Number
+                    <input
+                      required
+                      value={configForm.businessInfo.whatsapp}
+                      onChange={(e) =>
+                        setConfigForm((prev) => ({
+                          ...prev,
+                          businessInfo: { ...prev.businessInfo, whatsapp: e.target.value }
+                        }))
+                      }
+                    />
+                  </label>
+                  <label>
+                    Phones (comma separated)
+                    <input
+                      required
+                      value={configForm.businessInfo.phones.join(', ')}
+                      onChange={(e) =>
+                        setConfigForm((prev) => ({
+                          ...prev,
+                          businessInfo: {
+                            ...prev.businessInfo,
+                            phones: e.target.value.split(',').map((p) => p.trim())
+                          }
+                        }))
+                      }
+                    />
+                  </label>
+                  <label>
+                    Email
+                    <input
+                      required
+                      type="email"
+                      value={configForm.businessInfo.email}
+                      onChange={(e) =>
+                        setConfigForm((prev) => ({
+                          ...prev,
+                          businessInfo: { ...prev.businessInfo, email: e.target.value }
+                        }))
+                      }
+                    />
+                  </label>
+                  <label className="full-width">
+                    Address
+                    <input
+                      required
+                      value={configForm.businessInfo.address}
+                      onChange={(e) =>
+                        setConfigForm((prev) => ({
+                          ...prev,
+                          businessInfo: { ...prev.businessInfo, address: e.target.value }
+                        }))
+                      }
+                    />
+                  </label>
+                  <label className="full-width">
+                    Google Maps Embed URL
+                    <input
+                      required
+                      value={configForm.businessInfo.googleMapEmbed}
+                      onChange={(e) =>
+                        setConfigForm((prev) => ({
+                          ...prev,
+                          businessInfo: { ...prev.businessInfo, googleMapEmbed: e.target.value }
+                        }))
+                      }
+                    />
+                  </label>
+                </div>
+              </div>
+
+              <div className="form-section mt-10">
+                <div className="flex-between">
+                  <h3>Hero Carousel Slides</h3>
+                  <button
+                    type="button"
+                    className="secondary-btn sm"
+                    onClick={() =>
+                      setConfigForm((prev) => ({
+                        ...prev,
+                        heroSlides: [...prev.heroSlides, { title: '', subtitle: '', image: '' }]
+                      }))
+                    }
+                  >
+                    + Add Slide
+                  </button>
+                </div>
+                <div className="slides-container">
+                  {configForm.heroSlides.map((slide, index) => (
+                    <article key={index} className="admin-sub-card">
+                      <div className="flex-between">
+                        <h4>Slide {index + 1}</h4>
+                        <button
+                          type="button"
+                          className="danger-btn sm"
+                          onClick={() => {
+                            const next = [...configForm.heroSlides];
+                            next.splice(index, 1);
+                            setConfigForm((prev) => ({ ...prev, heroSlides: next }));
+                          }}
+                        >
+                          Remove
+                        </button>
+                      </div>
+                      <div className="form-grid-inner">
+                        <label>
+                          Title
+                          <input
+                            required
+                            value={slide.title}
+                            onChange={(e) => {
+                              const next = [...configForm.heroSlides];
+                              next[index] = { ...next[index], title: e.target.value };
+                              setConfigForm((prev) => ({ ...prev, heroSlides: next }));
+                            }}
+                          />
+                        </label>
+                        <label>
+                          Subtitle
+                          <input
+                            required
+                            value={slide.subtitle}
+                            onChange={(e) => {
+                              const next = [...configForm.heroSlides];
+                              next[index] = { ...next[index], subtitle: e.target.value };
+                              setConfigForm((prev) => ({ ...prev, heroSlides: next }));
+                            }}
+                          />
+                        </label>
+                        <label className="full-width">
+                          Image URL
+                          <input
+                            required
+                            type="url"
+                            value={slide.image}
+                            onChange={(e) => {
+                              const next = [...configForm.heroSlides];
+                              next[index] = { ...next[index], image: e.target.value };
+                              setConfigForm((prev) => ({ ...prev, heroSlides: next }));
+                            }}
+                          />
+                        </label>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              </div>
+
+              <div className="button-row mt-10">
+                <button className="primary-btn" type="submit" disabled={loading}>
+                  {loading ? 'Saving Settings...' : 'Save Site Settings'}
+                </button>
+              </div>
+            </div>
+          </form>
         </section>
       )}
     </div>

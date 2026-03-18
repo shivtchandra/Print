@@ -92,6 +92,7 @@ export const heroSlides = [
 
 export const defaultProducts: Product[] = [
   {
+    id: 'dell-g15-gaming',
     title: 'Dell G15 Gaming Laptop',
     category: 'laptops',
     brand: 'Dell',
@@ -99,13 +100,15 @@ export const defaultProducts: Product[] = [
     specs: ['Intel Core i7', '16GB RAM', '512GB SSD', 'RTX 3050'],
     features: ['RGB Keyboard', '144Hz Display'],
     images: [
-      'https://images.unsplash.com/photo-1517336714739-489689fd1ca8?auto=format&fit=crop&w=900&q=80'
+      'https://images.unsplash.com/photo-1603302576837-37561b2e2302?auto=format&fit=crop&w=900&q=80'
     ],
+    description: 'The Dell G15 is a powerhouse gaming laptop designed for high-performance gaming. Featuring the latest Intel Core i7 processor and NVIDIA RTX 3050 graphics, it delivers smooth visuals on its fast 144Hz display.',
     isFeatured: true,
     displayOrder: 1,
     status: 'active'
   },
   {
+    id: 'hp-probook-440',
     title: 'HP ProBook 440',
     category: 'laptops',
     brand: 'HP',
@@ -115,6 +118,7 @@ export const defaultProducts: Product[] = [
     images: [
       'https://images.unsplash.com/photo-1484788984921-03950022c9ef?auto=format&fit=crop&w=900&q=80'
     ],
+    description: 'Perfect for business professionals, the HP ProBook 440 offers essential security and durability in a stylish design. Lightweight and ready for any task.',
     isFeatured: true,
     displayOrder: 2,
     status: 'active'
@@ -134,6 +138,7 @@ export const defaultProducts: Product[] = [
     status: 'active'
   },
   {
+    id: 'gaming-pc-entry',
     title: 'Entry-Level Gaming PC',
     category: 'gaming-desktops',
     brand: 'Custom',
@@ -143,11 +148,13 @@ export const defaultProducts: Product[] = [
     images: [
       'https://images.unsplash.com/photo-1593642532744-d377ab507dc8?auto=format&fit=crop&w=900&q=80'
     ],
+    description: 'Start your gaming journey with this powerful entry-level desktop. High frame rates in 1080p and a beautiful RGB design.',
     isFeatured: true,
     displayOrder: 1,
     status: 'active'
   },
   {
+    id: 'esports-rig',
     title: 'Pro Esports Rig',
     category: 'gaming-desktops',
     brand: 'Custom',
@@ -157,11 +164,13 @@ export const defaultProducts: Product[] = [
     images: [
       'https://images.unsplash.com/photo-1591488320449-011701bb6704?auto=format&fit=crop&w=900&q=80'
     ],
+    description: 'A professional-grade gaming machine built for esports. With liquid cooling and the latest high-end components, it handles any game at competitive frame rates.',
     isFeatured: true,
     displayOrder: 2,
     status: 'active'
   },
   {
+    id: 'hp-smart-tank-580',
     title: 'HP Smart Tank 580',
     category: 'printers',
     brand: 'HP',
@@ -171,11 +180,13 @@ export const defaultProducts: Product[] = [
     images: [
       'https://images.unsplash.com/photo-1612815154858-60aa4c59eaa6?auto=format&fit=crop&w=900&q=80'
     ],
+    description: 'High-volume printing made easy with the HP Smart Tank 580. Features low-cost ink bottles and robust wireless connectivity.',
     isFeatured: true,
     displayOrder: 1,
     status: 'active'
   },
   {
+    id: 'canon-lbp-2900',
     title: 'Canon Laser LBP 2900',
     category: 'printers',
     brand: 'Canon',
@@ -185,11 +196,13 @@ export const defaultProducts: Product[] = [
     images: [
       'https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=900&q=80'
     ],
+    description: 'The legendary Canon LBP 2900 is known for its reliability and sharp laser printing. Perfect for small offices and student workloads.',
     isFeatured: false,
     displayOrder: 2,
     status: 'active'
   },
   {
+    id: '8-ch-cctv',
     title: '8-Channel CCTV Kit',
     category: 'cctv',
     brand: 'Hikvision',
@@ -199,11 +212,13 @@ export const defaultProducts: Product[] = [
     images: [
       'https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&w=900&q=80'
     ],
+    description: 'Complete security solution for your home or business. Includes 8 high-definition night-vision cameras and a 24/7 recording DVR.',
     isFeatured: true,
     displayOrder: 1,
     status: 'active'
   },
   {
+    id: 'wireless-ip-cam',
     title: 'Wireless IP Security Cam',
     category: 'cctv',
     brand: 'CP Plus',
@@ -213,11 +228,13 @@ export const defaultProducts: Product[] = [
     images: [
       'https://images.unsplash.com/photo-1557324232-b8917d0c3dcb?auto=format&fit=crop&w=900&q=80'
     ],
+    description: 'Simple and effective wireless security cam. Monitor your home from anywhere via the mobile app.',
     isFeatured: false,
     displayOrder: 2,
     status: 'active'
   },
   {
+    id: 'creator-workstation',
     title: 'Creator Workstation Build',
     category: 'assembled-desktops',
     brand: 'Custom',
@@ -227,11 +244,13 @@ export const defaultProducts: Product[] = [
     images: [
       'https://images.unsplash.com/photo-1587202372634-32705e3bf49c?auto=format&fit=crop&w=900&q=80'
     ],
+    description: 'Designed for video editors, 3D artists, and developers. A silent yet powerful machine that scales with your creative needs.',
     isFeatured: true,
     displayOrder: 1,
     status: 'active'
   },
   {
+    id: 'peripherals-combo',
     title: 'Gaming Peripherals Combo',
     category: 'accessories',
     brand: 'Mixed',
@@ -241,6 +260,7 @@ export const defaultProducts: Product[] = [
     images: [
       'https://images.unsplash.com/photo-1547394765-185e1e68f34e?auto=format&fit=crop&w=900&q=80'
     ],
+    description: 'Upgrade your gaming setup with this high-quality peripherals combo. Features mechanical precision and immersive sound.',
     isFeatured: true,
     displayOrder: 1,
     status: 'active'

@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 
-import { businessInfo } from '@/lib/config';
+import { useConfig } from '@/components/providers/ConfigProvider';
 
 const navItems = [
   { href: '/', label: 'Home' },
@@ -13,6 +13,7 @@ const navItems = [
 ];
 
 export function Header() {
+  const { businessInfo } = useConfig();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (

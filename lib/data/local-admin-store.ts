@@ -1,13 +1,15 @@
 import { mkdir, readFile, writeFile } from 'fs/promises';
 import path from 'path';
 
-import { defaultProducts, defaultTestimonials } from '@/lib/data/catalog';
-import { Lead, Product, Testimonial } from '@/lib/types/entities';
+import { businessInfo } from '@/lib/config';
+import { defaultProducts, defaultTestimonials, heroSlides } from '@/lib/data/catalog';
+import { Lead, Product, SiteConfig, Testimonial } from '@/lib/types/entities';
 
 type LocalAdminStore = {
   leads: Lead[];
   products: Product[];
   testimonials: Testimonial[];
+  siteConfig: SiteConfig;
 };
 
 const storePath = path.join(process.cwd(), 'data', 'admin-store.json');
@@ -21,7 +23,12 @@ const initialStore: LocalAdminStore = {
   testimonials: defaultTestimonials.map((testimonial, index) => ({
     ...testimonial,
     id: testimonial.id || `testimonial-seed-${index + 1}`
-  }))
+  })),
+  siteConfig: {
+    id: 'default',
+    businessInfo,
+    heroSlides
+  }
 };
 
 async function ensureStoreFile() {
@@ -43,7 +50,8 @@ export async function readLocalAdminStore(): Promise<LocalAdminStore> {
     return {
       leads: parsed.leads || [],
       products: parsed.products || [],
-      testimonials: parsed.testimonials || []
+      testimonials: parsed.testimonials || [],
+      siteConfig: parsed.siteConfig || initialStore.siteConfig
     };
   } catch {
     await writeLocalAdminStore(initialStore);

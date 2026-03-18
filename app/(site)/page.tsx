@@ -5,6 +5,9 @@ import { HeroCarousel } from '@/components/sections/HeroCarousel';
 import { QuickContactWidget } from '@/components/sections/QuickContactWidget';
 import { TestimonialsSection } from '@/components/sections/TestimonialsSection';
 import { VisitCTA } from '@/components/sections/VisitCTA';
+import { ExpertiseSection } from '@/components/sections/ExpertiseSection';
+import { ServicesDetailed } from '@/components/sections/ServicesDetailed';
+import { FaqSection } from '@/components/sections/FaqSection';
 import { pageMetadata } from '@/lib/seo/metadata';
 import { getStorefrontProducts, getStorefrontTestimonials } from '@/lib/data/storefront';
 
@@ -23,9 +26,12 @@ export default async function HomePage() {
   return (
     <>
       <HeroCarousel />
+      <ExpertiseSection />
       <FeaturedDeals />
+      <ServicesDetailed />
       <FeaturedProductCards products={products} />
       <DealsWithHighlights />
+      <FaqSection />
       <QuickContactWidget />
       <TestimonialsSection testimonials={testimonials} />
       <VisitCTA />

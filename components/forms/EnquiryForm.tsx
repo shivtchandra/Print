@@ -65,7 +65,7 @@ export function EnquiryForm({ category, sourcePage, title = 'Get a Quote' }: Enq
       const data = await response.json();
 
       if (!response.ok) {
-        setStatus(data.error || 'Unable to submit enquiry.');
+        setStatus(data.error || 'Invalid information. Please check your inputs.');
         return;
       }
 
@@ -107,7 +107,7 @@ export function EnquiryForm({ category, sourcePage, title = 'Get a Quote' }: Enq
                 required
                 value={form.phone}
                 onChange={(event) => setForm((prev) => ({ ...prev, phone: event.target.value }))}
-                placeholder="10-digit mobile number"
+                placeholder="Phone number"
               />
             </label>
             <label>

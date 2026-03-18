@@ -1,8 +1,31 @@
 {
-  "leads": [],
+  "leads": [
+    {
+      "id": "lead-1773769572528-w685yu",
+      "name": "teatt",
+      "phone": "958204221",
+      "email": "ts@gmail.com",
+      "category": "laptops",
+      "message": "test test ",
+      "sourcePage": "/contact",
+      "preferredContact": "phone",
+      "createdAt": "2026-03-17T17:46:12.528Z"
+    },
+    {
+      "id": "lead-1773768410717-kxuk7q",
+      "name": "shiva",
+      "phone": "39933135",
+      "email": "stec@gmail.com",
+      "category": "laptops",
+      "message": "test testt tes",
+      "sourcePage": "/contact",
+      "preferredContact": "phone",
+      "createdAt": "2026-03-17T17:26:50.717Z"
+    }
+  ],
   "products": [
     {
-      "title": "Dell G1005 Gaming ",
+      "title": "Dell G1005 Gaming",
       "category": "laptops",
       "brand": "Dell",
       "priceRange": "₹78,000 - ₹95,000",
@@ -17,7 +40,7 @@
         "144Hz Display"
       ],
       "images": [
-        "https://images.unsplash.com/photo-1517336714739-489689fd1ca8?auto=format&fit=crop&w=900&q=80"
+        "https://images.unsplash.com/photo-1603302576837-37561b2e2302?auto=format&fit=crop&w=900&q=80"
       ],
       "isFeatured": true,
       "displayOrder": 1,
@@ -264,5 +287,40 @@
       "createdAt": "2026-03-17T01:15:56.894Z",
       "id": "testimonial-seed-2"
     }
-  ]
+  ],
+  "siteConfig": {
+    "id": "default",
+    "businessInfo": {
+      "name": "Foto Palace",
+      "tagline": "No 1 Tech Store",
+      "description": "Laptops | Gaming Desktops | Printers | CCTV | Assembled Desktops | IT Accessories",
+      "phones": [
+        "9435051891",
+        "9954489045"
+      ],
+      "whatsapp": "919435051891",
+      "email": "fotopalace@gmail.com",
+      "address": "Gar-Ali, near Eleye Cinema, Vengavasal, Tamil Nadu",
+      "hours": "10:00 AM - 9:00 PM",
+      "copyright": "© 2026 Foto Palace",
+      "googleMapEmbed": "https://www.google.com/maps?q=Gar-Ali%20near%20Eleye%20Cinema%2C%20Vengavasal%2C%20Tamil%20Nadu&output=embed"
+    },
+    "heroSlides": [
+      {
+        "title": "Foto Palace - No 1 Tech Store",
+        "subtitle": "Best Deals on Tech in Vengavasal",
+        "image": "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1800&q=80"
+      },
+      {
+        "title": "Gaming Setups That Perform",
+        "subtitle": "Custom builds, RGB, and future-ready upgrades",
+        "image": "https://images.unsplash.com/photo-1598550476439-6847785fcea6?auto=format&fit=crop&w=1800&q=80"
+      },
+      {
+        "title": "Business Tech Made Simple",
+        "subtitle": "Laptops, printers, CCTV, and accessories under one roof",
+        "image": "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1800&q=80"
+      }
+    ]
+  }
 }

@@ -2,12 +2,13 @@ import { FieldValue } from 'firebase-admin/firestore';
 
 import { localId, readLocalAdminStore, writeLocalAdminStore } from '@/lib/data/local-admin-store';
 import { getAdminDb } from '@/lib/firebase/admin';
-import { Lead, Product, Testimonial } from '@/lib/types/entities';
+import { Lead, Product, SiteConfig, Testimonial } from '@/lib/types/entities';
 
 const COLLECTIONS = {
   leads: 'leads',
   products: 'products',
-  testimonials: 'testimonials'
+  testimonials: 'testimonials',
+  config: 'siteConfig'
 } as const;
 
 function normalizeDoc<T extends { id?: string }>(id: string, data: Omit<T, 'id'>): T {
@@ -75,6 +76,18 @@ export async function listProducts() {
   }
 
   return snapshot.docs.map((doc) => normalizeDoc<Product>(doc.id, doc.data() as Omit<Product, 'id'>));
+}
+
+export async function getProduct(id: string) {
+  const db = getAdminDb();
+  if (!db) {
+    const store = await readLocalAdminStore();
+    return store.products.find((p) => p.id === id) || null;
+  }
+
+  const doc = await db.collection(COLLECTIONS.products).doc(id).get();
+  if (!doc.exists) return null;
+  return normalizeDoc<Product>(doc.id, doc.data() as Omit<Product, 'id'>);
 }
 
 export async function createProduct(product: Product) {
@@ -169,4 +182,32 @@ export async function deleteTestimonial(id: string) {
     return;
   }
   await db.collection(COLLECTIONS.testimonials).doc(id).delete();
+}
+
+export async function getSiteConfig() {
+  const db = getAdminDb();
+  if (!db) {
+    const store = await readLocalAdminStore();
+    return store.siteConfig;
+  }
+
+  const doc = await db.collection(COLLECTIONS.config).doc('default').get();
+  if (!doc.exists) {
+    const store = await readLocalAdminStore();
+    return store.siteConfig;
+  }
+
+  return normalizeDoc<SiteConfig>(doc.id, doc.data() as Omit<SiteConfig, 'id'>);
+}
+
+export async function updateSiteConfig(config: SiteConfig) {
+  const db = getAdminDb();
+  if (!db) {
+    const store = await readLocalAdminStore();
+    store.siteConfig = { ...config, id: 'default' };
+    await writeLocalAdminStore(store);
+    return;
+  }
+
+  await db.collection(COLLECTIONS.config).doc('default').set(config, { merge: true });
 }

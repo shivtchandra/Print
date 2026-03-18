@@ -29,6 +29,7 @@ export interface Product {
   specs: string[];
   features: string[];
   images: string[];
+  description?: string;
   isFeatured: boolean;
   displayOrder: number;
   status: 'active' | 'inactive';
@@ -53,4 +54,29 @@ export interface CategoryMeta {
   heroImage: string;
   seoTitle: string;
   seoDescription: string;
+}
+
+export interface HeroSlide {
+  title: string;
+  subtitle: string;
+  image: string;
+}
+
+export interface BusinessInfo {
+  name: string;
+  tagline: string;
+  description: string;
+  phones: string[];
+  whatsapp: string;
+  email: string;
+  address: string;
+  hours: string;
+  copyright: string;
+  googleMapEmbed: string;
+}
+
+export interface SiteConfig {
+  id?: string;
+  businessInfo: BusinessInfo;
+  heroSlides: HeroSlide[];
 }

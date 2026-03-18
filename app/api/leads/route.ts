@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 
 import { leadSchema } from '@/lib/data/schemas';
 import { addLead } from '@/lib/firebase/data';
@@ -34,9 +35,18 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, id: saved.id }, { status: 201 });
   } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { 
+          error: error.errors[0]?.message || 'Invalid form data',
+          details: error.errors 
+        },
+        { status: 400 }
+      );
+    }
     return NextResponse.json(
       {
-        error: 'Invalid form submission',
+        error: 'Unable to process your request at this time.',
         details: error instanceof Error ? error.message : 'Unknown error'
       },
       { status: 400 }

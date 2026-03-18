@@ -36,7 +36,7 @@ export function ProductFilterGrid({ products }: ProductFilterGridProps) {
   const filtered = products.filter((product) => {
     const matchesBrand = brand === 'all' || product.brand === brand;
     const matchesPrice = priceBand === 'all' || parsePriceBand(product.priceRange) === priceBand;
-    const specText = `${product.title} ${product.specs.join(' ')} ${product.features.join(' ')}`.toLowerCase();
+    const specText = `${product.title} ${(product.specs || []).join(' ')} ${(product.features || []).join(' ')}`.toLowerCase();
     const matchesSpec = specQuery.trim().length === 0 || specText.includes(specQuery.toLowerCase());
 
     return matchesBrand && matchesPrice && matchesSpec && product.status === 'active';
@@ -115,26 +115,48 @@ export function ProductFilterGrid({ products }: ProductFilterGridProps) {
 
         <div className="product-grid">
           {filtered.map((product) => (
-            <article className="product-card" key={product.id || product.title}>
-              <div className="product-thumb">
-                <Image
-                  src={product.images[0]}
-                  alt={product.title}
-                  fill
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                />
+            <article className="product-card reveal" key={product.id || product.title}>
+              <div className="product-card-inner">
+                <div className="product-thumb">
+                  <Image
+                    src={product.images[0]}
+                    alt={product.title}
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    className="product-image"
+                  />
+                  {product.isFeatured && (
+                    <div className="card-badge featured">Featured</div>
+                  )}
+                </div>
+                
+                <div className="product-info">
+                  <div className="brand-tag">{product.brand}</div>
+                  <h3 className="product-title">{product.title}</h3>
+                  
+                  <div className="product-specs-chips">
+                    {product.specs.slice(0, 3).map((spec) => (
+                      <span key={spec} className="spec-chip">{spec}</span>
+                    ))}
+                  </div>
+
+                  <div className="product-card-footer">
+                    <div className="price-stack">
+                      <span className="price-label">Estimated Price</span>
+                      <span className="price-value">{product.priceRange}</span>
+                    </div>
+                    
+                    <div className="card-actions">
+                      <a href={`/product/${product.id}`} className="view-details-btn">
+                        View Details
+                      </a>
+                      <a href="#enquiry" className="card-enquiry-btn">
+                        Enquire
+                      </a>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <h3>{product.title}</h3>
-              <p className="meta">{product.brand}</p>
-              <ul>
-                {product.specs.slice(0, 4).map((spec) => (
-                  <li key={spec}>{spec}</li>
-                ))}
-              </ul>
-              <p className="price">{product.priceRange}</p>
-              <a href="#enquiry" className="secondary-btn">
-                Enquire Now
-              </a>
             </article>
           ))}
         </div>

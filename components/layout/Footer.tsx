@@ -1,6 +1,10 @@
-import { businessInfo, socialLinks } from '@/lib/config';
+'use client';
+
+import { useConfig } from '@/components/providers/ConfigProvider';
+import { socialLinks } from '@/lib/config';
 
 export function Footer() {
+  const { businessInfo } = useConfig();
   return (
     <footer className="site-footer">
       <div className="container footer-grid">

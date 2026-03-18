@@ -1,7 +1,6 @@
 import { ReactNode } from 'react';
 
 import { CategoryHero } from '@/components/sections/CategoryHero';
-import { ContactActions } from '@/components/sections/ContactActions';
 import { EnquiryForm } from '@/components/forms/EnquiryForm';
 import { FeatureList } from '@/components/sections/FeatureList';
 import { ProductFilterGrid } from '@/components/sections/ProductFilterGrid';
@@ -31,7 +30,6 @@ export function CategoryPageShell({ category, products, children }: CategoryPage
       <FeatureList title={`${meta.label} Highlights`} items={productFeaturesByCategory[category]} />
       {children}
       <ProductFilterGrid products={products} />
-      <ContactActions />
       <EnquiryForm category={category} sourcePage={`/${category}`} title={`Get ${meta.label} Quote`} />
     </>
   );

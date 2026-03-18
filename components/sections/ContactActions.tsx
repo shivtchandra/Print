@@ -1,7 +1,10 @@
+'use client';
+
 import { TrackedAnchor } from '@/components/analytics/TrackedAnchor';
-import { businessInfo } from '@/lib/config';
+import { useConfig } from '@/components/providers/ConfigProvider';
 
 export function ContactActions() {
+  const { businessInfo } = useConfig();
   return (
     <section className="section contact-actions">
       <div className="container action-grid">

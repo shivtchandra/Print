@@ -4,18 +4,22 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
-import { heroSlides } from '@/lib/data/catalog';
+import { useConfig } from '@/components/providers/ConfigProvider';
 
 export function HeroCarousel() {
+  const { heroSlides } = useConfig();
   const [activeSlide, setActiveSlide] = useState(0);
 
   useEffect(() => {
+    if (heroSlides.length <= 1) return;
     const timer = setInterval(() => {
-      setActiveSlide((prev) => (prev + 1) % heroSlides.length);
+      if (heroSlides.length > 0) {
+        setActiveSlide((prev) => (prev + 1) % heroSlides.length);
+      }
     }, 4500);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [heroSlides.length]);
 
   return (
     <section className="hero-carousel">

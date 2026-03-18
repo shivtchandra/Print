@@ -1,8 +1,18 @@
 import { unstable_noStore as noStore } from 'next/cache';
 
-import { categoryMeta, defaultProducts, defaultTestimonials } from '@/lib/data/catalog';
-import { listProducts, listTestimonials } from '@/lib/firebase/data';
+import { businessInfo } from '@/lib/config';
+import { categoryMeta, defaultProducts, defaultTestimonials, heroSlides } from '@/lib/data/catalog';
+import { getProduct, getSiteConfig, listProducts, listTestimonials } from '@/lib/firebase/data';
 import { ProductCategory } from '@/lib/types/entities';
+
+export async function getStorefrontProduct(id: string) {
+  noStore();
+  try {
+    return await getProduct(id);
+  } catch {
+    return defaultProducts.find((p) => p.id === id) || null;
+  }
+}
 
 export async function getStorefrontProducts(category?: ProductCategory) {
   noStore();
@@ -30,4 +40,18 @@ export async function getStorefrontTestimonials() {
 
 export function getAllCategoryRoutes() {
   return Object.values(categoryMeta).map((item) => item.slug);
+}
+
+export async function getStorefrontConfig() {
+  noStore();
+  try {
+    const config = await getSiteConfig();
+    return {
+      businessInfo: config?.businessInfo || businessInfo,
+      heroSlides:
+        config?.heroSlides && config.heroSlides.length > 0 ? config.heroSlides : heroSlides
+    };
+  } catch {
+    return { businessInfo, heroSlides };
+  }
 }

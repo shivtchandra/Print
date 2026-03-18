@@ -44,7 +44,7 @@ export function ContactForm() {
 
       const data = await response.json();
       if (!response.ok) {
-        setStatus(data.error || 'Unable to send message.');
+        setStatus(data.error || 'Invalid information. Please check your inputs.');
         return;
       }
 
