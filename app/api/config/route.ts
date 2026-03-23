@@ -8,7 +8,8 @@ export async function GET() {
     return NextResponse.json({
       businessInfo: config.businessInfo,
       heroSlides: config.heroSlides,
-      aboutPage: config.aboutPage
+      aboutPage: config.aboutPage,
+      mobileHeroProductIds: config.mobileHeroProductIds ?? []
     });
   } catch {
     return NextResponse.json({ error: 'Failed to fetch public site config' }, { status: 500 });

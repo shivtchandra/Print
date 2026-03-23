@@ -50,10 +50,17 @@ export async function getStorefrontConfig() {
       businessInfo: config?.businessInfo || businessInfo,
       heroSlides: config?.heroSlides && config.heroSlides.length > 0 ? config.heroSlides : heroSlides,
       aboutPage: config?.aboutPage || defaultAboutPage,
-      laptopCustomization: config?.laptopCustomization || defaultLaptopCustomization
+      laptopCustomization: config?.laptopCustomization || defaultLaptopCustomization,
+      mobileHeroProductIds: config?.mobileHeroProductIds ?? []
     };
   } catch {
-    return { businessInfo, heroSlides, aboutPage: defaultAboutPage, laptopCustomization: defaultLaptopCustomization };
+    return {
+      businessInfo,
+      heroSlides,
+      aboutPage: defaultAboutPage,
+      laptopCustomization: defaultLaptopCustomization,
+      mobileHeroProductIds: []
+    };
   }
 }
 

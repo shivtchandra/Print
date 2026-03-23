@@ -111,7 +111,23 @@
       "isFeatured": true,
       "displayOrder": 1,
       "status": "active",
-      "id": "product-seed-4"
+      "id": "product-seed-4",
+      "description": "",
+      "customizations": [
+        {
+          "name": "gpu",
+          "options": [
+            {
+              "label": "intel",
+              "price": 2000
+            },
+            {
+              "label": "Amu",
+              "price": 3000
+            }
+          ]
+        }
+      ]
     },
     {
       "title": "Pro Esports Rig",

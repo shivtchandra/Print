@@ -33,6 +33,7 @@ export interface Product {
   isFeatured: boolean;
   displayOrder: number;
   status: 'active' | 'inactive';
+  customizations?: LaptopCustomizationCategory[];
 }
 
 export interface Testimonial {
@@ -104,4 +105,5 @@ export interface SiteConfig {
   heroSlides: HeroSlide[];
   aboutPage: AboutPageContent;
   laptopCustomization: LaptopCustomizationConfig;
+  mobileHeroProductIds?: string[];
 }

@@ -37,7 +37,20 @@ export const productSchema = z.object({
   description: z.string().max(1000).optional(),
   isFeatured: z.boolean(),
   displayOrder: z.number().int().min(0),
-  status: z.enum(['active', 'inactive'])
+  status: z.enum(['active', 'inactive']),
+  customizations: z.array(
+    z.object({
+      id: z.string().optional(),
+      name: z.string().min(1).max(60),
+      options: z.array(
+        z.object({
+          id: z.string().optional(),
+          label: z.string().min(1).max(80),
+          price: z.number().min(0)
+        })
+      ).min(1)
+    })
+  ).optional().default([])
 });
 
 export const testimonialSchema = z.object({
@@ -94,5 +107,6 @@ export const siteConfigSchema = z.object({
   businessInfo: businessInfoSchema,
   heroSlides: z.array(heroSlideSchema),
   aboutPage: aboutPageContentSchema,
-  laptopCustomization: laptopCustomizationSchema
+  laptopCustomization: laptopCustomizationSchema,
+  mobileHeroProductIds: z.array(z.string()).default([])
 });

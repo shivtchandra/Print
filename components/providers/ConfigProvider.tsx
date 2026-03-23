@@ -7,6 +7,7 @@ interface ConfigContextType {
   businessInfo: BusinessInfo;
   heroSlides: HeroSlide[];
   aboutPage: AboutPageContent;
+  mobileHeroProductIds: string[];
 }
 
 const ConfigContext = createContext<ConfigContextType | undefined>(undefined);

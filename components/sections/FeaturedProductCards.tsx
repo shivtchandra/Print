@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import { StorefrontImage } from '@/components/media/StorefrontImage';
 
 import { Product } from '@/lib/types/entities';
 
@@ -25,7 +25,7 @@ export function FeaturedProductCards({ products }: FeaturedProductCardsProps) {
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
                 <div className="product-thumb">
-                  <Image
+                  <StorefrontImage
                     src={product.images[0]}
                     alt={product.title}
                     fill

@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import { StorefrontImage } from '@/components/media/StorefrontImage';
 
 interface CategoryHeroProps {
   title: string;
@@ -9,7 +9,7 @@ interface CategoryHeroProps {
 export function CategoryHero({ title, subtitle, image }: CategoryHeroProps) {
   return (
     <section className="category-hero">
-      <Image src={image} alt={title} fill sizes="100vw" className="category-hero-image" priority />
+      <StorefrontImage src={image} alt={title} fill sizes="100vw" className="category-hero-image" priority />
       <div className="hero-overlay" />
       <div className="container category-hero-copy">
         <h1>{title}</h1>

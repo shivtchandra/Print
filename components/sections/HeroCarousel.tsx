@@ -1,35 +1,90 @@
 'use client';
 
-import Image from 'next/image';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+
+import { StorefrontImage } from '@/components/media/StorefrontImage';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useConfig } from '@/components/providers/ConfigProvider';
+import { Product } from '@/lib/types/entities';
 
-export function HeroCarousel() {
-  const { heroSlides } = useConfig();
+interface HeroCarouselProps {
+  products: Product[];
+}
+
+export function HeroCarousel({ products }: HeroCarouselProps) {
+  const { heroSlides, mobileHeroProductIds } = useConfig();
   const [activeSlide, setActiveSlide] = useState(0);
+  const [mobileIndex, setMobileIndex] = useState(0);
+  const mobileStripRef = useRef<HTMLDivElement>(null);
 
+  // Desktop: image slide auto-rotation
   useEffect(() => {
     if (heroSlides.length <= 1) return;
     const timer = setInterval(() => {
-      if (heroSlides.length > 0) {
-        setActiveSlide((prev) => (prev + 1) % heroSlides.length);
-      }
+      setActiveSlide((prev) => (prev + 1) % heroSlides.length);
     }, 4500);
-
     return () => clearInterval(timer);
   }, [heroSlides.length]);
 
+  // Mobile hero products: use admin-selected IDs, fallback to featured
+  const mobileProducts = useMemo(() => {
+    const active = products.filter((p) => p.status === 'active' && p.id);
+    if (mobileHeroProductIds && mobileHeroProductIds.length > 0) {
+      const byId = new Map(active.map((p) => [p.id, p]));
+      const selected = mobileHeroProductIds
+        .map((id) => byId.get(id))
+        .filter(Boolean) as Product[];
+      if (selected.length > 0) return selected;
+    }
+    // Fallback: featured products, then first 6 active
+    const featured = active.filter((p) => p.isFeatured);
+    return featured.length > 0 ? featured.slice(0, 6) : active.slice(0, 6);
+  }, [products, mobileHeroProductIds]);
+
+  // Scroll-snap observer for mobile index tracking
+  useEffect(() => {
+    const root = mobileStripRef.current;
+    if (!root || mobileProducts.length === 0) return;
+
+    const items = Array.from(root.children) as HTMLElement[];
+    if (items.length === 0) return;
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((e) => e.isIntersecting && e.intersectionRatio >= 0.5)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (!visible) return;
+        const idx = items.indexOf(visible.target as HTMLElement);
+        if (idx >= 0) setMobileIndex(idx);
+      },
+      { root, threshold: [0.5, 0.8] }
+    );
+
+    items.forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, [mobileProducts]);
+
+  const scrollToSlide = useCallback((index: number) => {
+    const root = mobileStripRef.current;
+    const card = root?.children[index] as HTMLElement | undefined;
+    if (!root || !card) return;
+    const left = root.scrollLeft + (card.getBoundingClientRect().left - root.getBoundingClientRect().left);
+    root.scrollTo({ left: Math.max(0, left), behavior: 'smooth' });
+    setMobileIndex(index);
+  }, []);
+
   return (
     <section className="hero-carousel">
+      {/* ===== DESKTOP: Image slides (hidden on mobile) ===== */}
       {heroSlides.map((slide, index) => (
         <article
           key={slide.title}
           className={`hero-slide ${index === activeSlide ? 'active' : ''}`}
           aria-hidden={index !== activeSlide}
         >
-          <Image
+          <StorefrontImage
             src={slide.image}
             alt={slide.title}
             fill
@@ -39,19 +94,20 @@ export function HeroCarousel() {
           />
           <div className="hero-overlay" />
           <div className="container hero-copy">
-            <span className="hero-sub fade-up"> Foto Palace | Vengavasal </span>
+            <span className="hero-sub fade-up">Foto Palace | Vengavasal</span>
             <h1 className="fade-up delay-1">{slide.title}</h1>
             <p className="fade-up delay-2">{slide.subtitle}</p>
             <div className="hero-actions fade-up delay-3">
               <Link href="/laptops" className="primary-btn">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px', flexShrink: 0 }}><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
                 Browse Collection
               </Link>
             </div>
           </div>
         </article>
       ))}
-      <div className="hero-dots" role="tablist" aria-label="Hero Slides">
+
+      {/* Desktop dots */}
+      <div className="hero-dots hero-dots-desktop" role="tablist" aria-label="Hero Slides">
         {heroSlides.map((slide, index) => (
           <button
             key={slide.title}
@@ -62,6 +118,55 @@ export function HeroCarousel() {
           />
         ))}
       </div>
+
+      {/* ===== MOBILE: Product card carousel (hidden on desktop) ===== */}
+      {mobileProducts.length > 0 && (
+        <div className="mobile-hero-products">
+          <div
+            ref={mobileStripRef}
+            className="mobile-hero-strip"
+            aria-label="Featured products"
+          >
+            {mobileProducts.map((product, idx) => (
+              <Link
+                key={`${product.id}-${idx}`}
+                href={`/product/${product.id}`}
+                className="mobile-hero-card"
+              >
+                <div className="mobile-hero-card-image">
+                  <StorefrontImage
+                    src={product.images[0]}
+                    alt={product.title}
+                    fill
+                    sizes="85vw"
+                    priority={idx === 0}
+                    className="mobile-hero-card-img"
+                  />
+                </div>
+                <div className="mobile-hero-card-info">
+                  <h3>{product.title}</h3>
+                  <p className="mobile-hero-card-price">{product.priceRange}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
+
+          {/* Simple dot indicators */}
+          {mobileProducts.length > 1 && (
+            <div className="mobile-hero-dots">
+              {mobileProducts.map((_, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  className={`mobile-hero-dot ${idx === mobileIndex ? 'active' : ''}`}
+                  onClick={() => scrollToSlide(idx)}
+                  aria-label={`Product ${idx + 1}`}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </section>
   );
 }

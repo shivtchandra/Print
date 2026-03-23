@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
-import Image from 'next/image';
 import Link from 'next/link';
+
+import { StorefrontImage } from '@/components/media/StorefrontImage';
 import { getStorefrontProduct } from '@/lib/data/storefront';
 import { getStorefrontConfig } from '@/lib/data/storefront';
 import { pageMetadata } from '@/lib/seo/metadata';
@@ -83,13 +84,13 @@ export default async function ProductPage({ params }: ProductPageProps) {
               <div className="thumbnails-vertical">
                 {product.images.map((img, idx) => (
                   <div key={idx} className={`thumb-item ${idx === 0 ? 'active' : ''}`}>
-                    <Image src={img} alt={`${product.title} view ${idx + 1}`} fill className="object-cover" />
+                    <StorefrontImage src={img} alt={`${product.title} view ${idx + 1}`} fill className="object-cover" />
                   </div>
                 ))}
               </div>
               <div className="main-stage">
                 <div className="main-image-wrap">
-                  <Image
+                  <StorefrontImage
                     src={product.images[0]}
                     alt={product.title}
                     fill
@@ -138,9 +139,12 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
             <div className="divider"></div>
 
-            {product.category === 'laptops' && laptopCustomization.length > 0 && (
+            {((product.customizations ?? []).length > 0 || (product.category === 'laptops' && laptopCustomization.length > 0)) && (
               <>
-                <LaptopCustomizationPanel categories={laptopCustomization} basePrice={basePrice} />
+                <LaptopCustomizationPanel
+                  categories={(product.customizations ?? []).length > 0 ? product.customizations! : laptopCustomization}
+                  basePrice={basePrice}
+                />
                 <div className="divider"></div>
               </>
             )}

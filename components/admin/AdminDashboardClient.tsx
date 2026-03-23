@@ -35,6 +35,7 @@ type ProductForm = {
   isFeatured: boolean;
   displayOrder: number;
   status: 'active' | 'inactive';
+  customizations: { name: string; options: { label: string; price: number }[] }[];
 };
 
 type TestimonialForm = {
@@ -58,7 +59,8 @@ const defaultProductForm: ProductForm = {
   description: '',
   isFeatured: false,
   displayOrder: 0,
-  status: 'active'
+  status: 'active',
+  customizations: []
 };
 
 const defaultTestimonialForm: TestimonialForm = {
@@ -100,7 +102,8 @@ const defaultConfigForm: ConfigForm = {
   },
   laptopCustomization: {
     categories: []
-  }
+  },
+  mobileHeroProductIds: []
 };
 
 export function AdminDashboardClient() {
@@ -212,7 +215,8 @@ export function AdminDashboardClient() {
               ...defaultConfigForm.laptopCustomization,
               ...(configRes.config.laptopCustomization || {}),
               categories: configRes.config.laptopCustomization?.categories || defaultConfigForm.laptopCustomization.categories
-            }
+            },
+            mobileHeroProductIds: configRes.config.mobileHeroProductIds || []
           });
         }
       } catch (err) {
@@ -284,7 +288,8 @@ export function AdminDashboardClient() {
         description: productForm.description.trim(),
         isFeatured: productForm.isFeatured,
         displayOrder: Number(productForm.displayOrder),
-        status: productForm.status
+        status: productForm.status,
+        customizations: productForm.customizations.filter((c) => c.name.trim() && c.options.some((o) => o.label.trim()))
       };
 
       if (editingProductId) {
@@ -604,6 +609,7 @@ export function AdminDashboardClient() {
                 required
                 value={productForm.images}
                 onChange={(event) => setProductForm((prev) => ({ ...prev, images: event.target.value }))}
+                placeholder="https://… or Google Drive share link (Anyone with the link)"
               />
             </label>
             <label>
@@ -636,6 +642,139 @@ export function AdminDashboardClient() {
               />
               Featured Product
             </label>
+
+            <div className="form-section mt-10">
+              <div className="flex-between">
+                <h3>Customization Options</h3>
+                <button
+                  type="button"
+                  className="secondary-btn sm"
+                  onClick={() =>
+                    setProductForm((prev) => ({
+                      ...prev,
+                      customizations: [...prev.customizations, { name: '', options: [{ label: '', price: 0 }] }]
+                    }))
+                  }
+                >
+                  + Add Category
+                </button>
+              </div>
+              <p className="muted-text" style={{ marginTop: '0.5rem' }}>
+                Add upgrade categories like RAM, Processor, Storage. Customers can pick options and get a quote.
+              </p>
+
+              <div className="slides-container">
+                {productForm.customizations.map((cat, catIdx) => (
+                  <article key={catIdx} className="admin-sub-card">
+                    <div className="flex-between">
+                      <h4>Category {catIdx + 1}</h4>
+                      <button
+                        type="button"
+                        className="danger-btn sm"
+                        onClick={() => {
+                          const next = [...productForm.customizations];
+                          next.splice(catIdx, 1);
+                          setProductForm((prev) => ({ ...prev, customizations: next }));
+                        }}
+                      >
+                        Remove
+                      </button>
+                    </div>
+                    <div className="form-grid-inner">
+                      <label className="full-width">
+                        Category Name (e.g. RAM, Processor)
+                        <input
+                          value={cat.name}
+                          onChange={(e) => {
+                            const next = [...productForm.customizations];
+                            next[catIdx] = { ...next[catIdx], name: e.target.value };
+                            setProductForm((prev) => ({ ...prev, customizations: next }));
+                          }}
+                        />
+                      </label>
+                    </div>
+
+                    <div className="form-section" style={{ marginTop: '0.75rem' }}>
+                      <div className="flex-between">
+                        <h4 style={{ fontSize: '0.95rem' }}>Options</h4>
+                        <button
+                          type="button"
+                          className="secondary-btn sm"
+                          onClick={() => {
+                            const next = [...productForm.customizations];
+                            next[catIdx] = {
+                              ...next[catIdx],
+                              options: [...next[catIdx].options, { label: '', price: 0 }]
+                            };
+                            setProductForm((prev) => ({ ...prev, customizations: next }));
+                          }}
+                        >
+                          + Add Option
+                        </button>
+                      </div>
+                      <div className="slides-container">
+                        {cat.options.map((opt, optIdx) => (
+                          <div key={optIdx} className="admin-sub-card" style={{ padding: '0.75rem' }}>
+                            <div className="flex-between">
+                              <small>Option {optIdx + 1}</small>
+                              <button
+                                type="button"
+                                className="danger-btn sm"
+                                onClick={() => {
+                                  const next = [...productForm.customizations];
+                                  const opts = [...next[catIdx].options];
+                                  opts.splice(optIdx, 1);
+                                  next[catIdx] = { ...next[catIdx], options: opts.length ? opts : [{ label: '', price: 0 }] };
+                                  setProductForm((prev) => ({ ...prev, customizations: next }));
+                                }}
+                              >
+                                ×
+                              </button>
+                            </div>
+                            <div className="form-grid-inner">
+                              <label>
+                                Label
+                                <input
+                                  value={opt.label}
+                                  onChange={(e) => {
+                                    const next = [...productForm.customizations];
+                                    const opts = [...next[catIdx].options];
+                                    opts[optIdx] = { ...opts[optIdx], label: e.target.value };
+                                    next[catIdx] = { ...next[catIdx], options: opts };
+                                    setProductForm((prev) => ({ ...prev, customizations: next }));
+                                  }}
+                                />
+                              </label>
+                              <label>
+                                Price (+₹)
+                                <input
+                                  type="number"
+                                  min={0}
+                                  value={opt.price}
+                                  onChange={(e) => {
+                                    const next = [...productForm.customizations];
+                                    const opts = [...next[catIdx].options];
+                                    opts[optIdx] = { ...opts[optIdx], price: Number(e.target.value) || 0 };
+                                    next[catIdx] = { ...next[catIdx], options: opts };
+                                    setProductForm((prev) => ({ ...prev, customizations: next }));
+                                  }}
+                                />
+                              </label>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </article>
+                ))}
+                {productForm.customizations.length === 0 && (
+                  <p className="muted-text">
+                    No customization categories. Click &quot;+ Add Category&quot; to add upgrade options like RAM,
+                    Processor, etc.
+                  </p>
+                )}
+              </div>
+            </div>
 
             <div className="button-row">
               <button className="primary-btn" type="submit">
@@ -687,7 +826,11 @@ export function AdminDashboardClient() {
                         description: product.description || '',
                         isFeatured: product.isFeatured,
                         displayOrder: product.displayOrder,
-                        status: product.status
+                        status: product.status,
+                        customizations: (product.customizations || []).map((c) => ({
+                          name: c.name,
+                          options: c.options.map((o) => ({ label: o.label, price: o.price }))
+                        }))
                       });
                       window.scrollTo({ top: 0, behavior: 'smooth' });
                     }}
@@ -990,6 +1133,61 @@ export function AdminDashboardClient() {
                       </div>
                     </article>
                   ))}
+                </div>
+              </div>
+
+              <div className="form-section mt-10">
+                <h3>Mobile Hero Products</h3>
+                <p className="muted-text" style={{ marginTop: '0.5rem', marginBottom: '1rem' }}>
+                  Select which products appear in the mobile hero carousel. On mobile, product cards replace the image slides.
+                </p>
+                <div className="admin-list">
+                  {products.filter(p => p.status === 'active').map((product) => {
+                    const isSelected = (configForm.mobileHeroProductIds || []).includes(product.id || '');
+                    return (
+                      <label
+                        key={product.id}
+                        className="admin-item"
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '1rem',
+                          cursor: 'pointer',
+                          padding: '1rem',
+                          background: isSelected ? 'rgba(255, 126, 51, 0.08)' : undefined,
+                          borderColor: isSelected ? 'var(--primary)' : undefined
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => {
+                            setConfigForm((prev) => {
+                              const ids = prev.mobileHeroProductIds || [];
+                              const next = isSelected
+                                ? ids.filter((id) => id !== product.id)
+                                : [...ids, product.id!];
+                              return { ...prev, mobileHeroProductIds: next };
+                            });
+                          }}
+                          style={{ width: 20, height: 20, accentColor: 'var(--primary)' }}
+                        />
+                        <div style={{ flex: 1 }}>
+                          <strong>{product.title}</strong>
+                          <br />
+                          <small style={{ color: 'var(--muted)' }}>
+                            {product.brand} · {product.priceRange}
+                          </small>
+                        </div>
+                        {isSelected && (
+                          <span style={{ color: 'var(--primary)', fontWeight: 700, fontSize: '0.8rem' }}>SELECTED</span>
+                        )}
+                      </label>
+                    );
+                  })}
+                  {products.filter(p => p.status === 'active').length === 0 && (
+                    <p className="muted-text">No active products. Add products in the Products tab first.</p>
+                  )}
                 </div>
               </div>
 

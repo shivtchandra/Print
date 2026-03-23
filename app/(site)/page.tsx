@@ -24,17 +24,17 @@ export default async function HomePage() {
   ]);
 
   return (
-    <>
-      <HeroCarousel />
-      <ExpertiseSection />
+    <div className="home-page">
+      <HeroCarousel products={products} />
       <FeaturedDeals />
-      <ServicesDetailed />
       <FeaturedProductCards products={products} />
+      <ServicesDetailed />
+      <ExpertiseSection />
       <DealsWithHighlights />
+      <TestimonialsSection testimonials={testimonials} />
       <FaqSection />
       <QuickContactWidget />
-      <TestimonialsSection testimonials={testimonials} />
       <VisitCTA />
-    </>
+    </div>
   );
 }

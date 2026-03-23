@@ -1,7 +1,8 @@
 'use client';
 
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+
+import { StorefrontImage } from '@/components/media/StorefrontImage';
 import { useMemo, useState } from 'react';
 
 import { Product } from '@/lib/types/entities';
@@ -159,7 +160,7 @@ export function ProductFilterGrid({ products, currentCategory }: ProductFilterGr
             <article className="product-card reveal" key={product.id || product.title}>
               <div className="product-card-inner">
                 <div className="product-thumb">
-                  <Image
+                  <StorefrontImage
                     src={product.images[0]}
                     alt={product.title}
                     fill

@@ -103,8 +103,8 @@ export function LaptopCustomizationPanel({ categories, basePrice }: LaptopCustom
   return (
     <section className="customization-card" aria-label="Laptop customization and price estimate">
       <div className="customization-head">
-        <h3>PC & laptop customization</h3>
-        <p>Choose one option per category. We specialize in PC customization too, and you will always get the best price for your selected build.</p>
+        <h3>Customize Your Build</h3>
+        <p>Choose one option per category to get a customized quote. We specialize in component-level customization and you will always get the best price.</p>
       </div>
 
       <div className="customization-grid">
