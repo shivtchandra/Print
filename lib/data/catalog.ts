@@ -41,7 +41,7 @@ export const categoryMeta: Record<ProductCategory, CategoryMeta> = {
     heroTitle: 'Secure Your World with CCTV',
     heroSubtitle: 'Smart surveillance systems with professional installation support.',
     heroImage:
-      'https://images.unsplash.com/photo-1557324232-b8917d0c3dcb?auto=format&fit=crop&w=1600&q=80',
+      'https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&w=1600&q=80',
     seoTitle: 'CCTV Installation Vengavasal | Foto Palace',
     seoDescription: 'Wireless IP cameras, DVR kits, and night-vision solutions for home and office.'
   },
@@ -226,7 +226,7 @@ export const defaultProducts: Product[] = [
     specs: ['WiFi', 'Night Vision', 'Motion Alerts'],
     features: ['Quick Install', 'Remote Access'],
     images: [
-      'https://images.unsplash.com/photo-1557324232-b8917d0c3dcb?auto=format&fit=crop&w=900&q=80'
+      'https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&w=900&q=80'
     ],
     description: 'Simple and effective wireless security cam. Monitor your home from anywhere via the mobile app.',
     isFeatured: false,

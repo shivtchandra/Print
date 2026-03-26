@@ -1,4 +1,3 @@
-import { DealsWithHighlights } from '@/components/sections/DealsWithHighlights';
 import { FeaturedDeals } from '@/components/sections/FeaturedDeals';
 import { FeaturedProductCards } from '@/components/sections/FeaturedProductCards';
 import { HeroCarousel } from '@/components/sections/HeroCarousel';
@@ -30,7 +29,6 @@ export default async function HomePage() {
       <FeaturedProductCards products={products} />
       <ServicesDetailed />
       <ExpertiseSection />
-      <DealsWithHighlights />
       <TestimonialsSection testimonials={testimonials} />
       <FaqSection />
       <QuickContactWidget />

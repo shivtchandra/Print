@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 
 import { categoryMeta } from '@/lib/data/catalog';
 import { ProductCategory } from '@/lib/types/entities';
@@ -14,28 +15,35 @@ const categories: ProductCategory[] = [
 
 export function FeaturedDeals() {
   return (
-    <section className="section">
+    <section className="section" id="shop-by-category">
       <div className="container">
         <div className="section-head">
-          <h2>Featured Deals</h2>
+          <h2><span className="text-accent">Shop by</span> Category</h2>
           <p>Explore our top categories and discover the right setup for your needs.</p>
         </div>
-        <div className="category-grid">
-          {categories.map((category, index) => (
-            <Link 
-              className="category-card fade-up" 
-              key={category} 
-              href={`/${category}`}
-              style={{ animationDelay: `${index * 0.1}s` }}
-            >
-              <h3>{categoryMeta[category].label}</h3>
-              <p>{categoryMeta[category].heroSubtitle}</p>
-              <span className="cta-link">
-                Shop Category 
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: '6px', verticalAlign: 'middle' }}><path d="m9 18 6-6-6-6"/></svg>
-              </span>
-            </Link>
-          ))}
+        <div className="category-scroll-grid">
+          {categories.map((category) => {
+            const meta = categoryMeta[category];
+            return (
+              <Link
+                className="category-image-card"
+                key={category}
+                href={`/${category}`}
+              >
+                <div className="category-image-wrap">
+                  <Image
+                    src={meta.heroImage}
+                    alt={meta.label}
+                    fill
+                    sizes="(max-width: 768px) 50vw, 25vw"
+                    className="category-image"
+                    loading="lazy"
+                  />
+                </div>
+                <h3 className="category-image-label">{meta.label}</h3>
+              </Link>
+            );
+          })}
         </div>
       </div>
     </section>
