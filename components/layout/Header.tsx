@@ -100,37 +100,34 @@ export function Header() {
               {navItems.map((item) => {
                 if (item.type === 'products') {
                   return (
-                    <div
-                      className="desktop-nav-dropdown"
-                      key="products"
-                      onMouseEnter={() => setIsProductsOpen(true)}
-                      onMouseLeave={() => setIsProductsOpen(false)}
-                    >
+                    <div className="desktop-nav-dropdown" key="products">
                       <button
                         type="button"
-                        className={`desktop-nav-link ${isProductsOpen ? 'active' : ''}`}
-                        aria-expanded={isProductsOpen}
-                        onClick={() => setIsProductsOpen((v) => !v)}
+                        className="desktop-nav-link desktop-nav-products-btn"
+                        aria-haspopup="true"
                       >
                         {item.label}
-                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: '4px' }}>
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="products-caret">
                           <path d="m6 9 6 6 6-6"/>
                         </svg>
                       </button>
-                      {isProductsOpen && (
-                        <ul className="desktop-dropdown-menu">
+                      <div className="desktop-dropdown-panel">
+                        <div className="desktop-dropdown-inner">
                           {productCategories.map((key) => {
                             const meta = categoryMeta[key];
                             return (
-                              <li key={meta.slug}>
-                                <Link href={`/${meta.slug}`} className="desktop-dropdown-link" onClick={closeMenu}>
-                                  {meta.label}
-                                </Link>
-                              </li>
+                              <Link
+                                key={meta.slug}
+                                href={`/${meta.slug}`}
+                                className="desktop-dropdown-cat-link"
+                                onClick={closeMenu}
+                              >
+                                {meta.label}
+                              </Link>
                             );
                           })}
-                        </ul>
-                      )}
+                        </div>
+                      </div>
                     </div>
                   );
                 }
@@ -203,19 +200,7 @@ export function Header() {
           </div>
         </nav>
 
-        {/* ===== SECONDARY CATEGORY BAR (desktop only) ===== */}
-        <div className="category-bar">
-          <div className="container category-bar-inner">
-            {productCategories.map((key) => {
-              const meta = categoryMeta[key];
-              return (
-                <Link key={meta.slug} href={`/${meta.slug}`} className="category-bar-link">
-                  {meta.label}
-                </Link>
-              );
-            })}
-          </div>
-        </div>
+
       </header>
     </>
   );

@@ -37,7 +37,6 @@ export function HeroCarousel({ products }: HeroCarouselProps) {
         .filter(Boolean) as Product[];
       if (selected.length > 0) return selected;
     }
-    // Fallback: featured products, then first 6 active
     const featured = active.filter((p) => p.isFeatured);
     return featured.length > 0 ? featured.slice(0, 6) : active.slice(0, 6);
   }, [products, mobileHeroProductIds]);
@@ -75,48 +74,67 @@ export function HeroCarousel({ products }: HeroCarouselProps) {
     setMobileIndex(index);
   }, []);
 
+  const currentSlide = heroSlides[activeSlide];
+
   return (
     <section className="hero-carousel">
-      {/* ===== DESKTOP: Image slides (hidden on mobile) ===== */}
-      {heroSlides.map((slide, index) => (
-        <article
-          key={slide.title}
-          className={`hero-slide ${index === activeSlide ? 'active' : ''}`}
-          aria-hidden={index !== activeSlide}
-        >
-          <StorefrontImage
-            src={slide.image}
-            alt={slide.title}
-            fill
-            priority={index === 0}
-            sizes="100vw"
-            className="hero-image"
-          />
-          <div className="hero-overlay" />
-          <div className="container hero-copy">
-            <span className="hero-sub fade-up">Foto Palace | Vengavasal</span>
-            <h1 className="fade-up delay-1">{slide.title}</h1>
-            <p className="fade-up delay-2">{slide.subtitle}</p>
-            <div className="hero-actions fade-up delay-3">
-              <Link href="/laptops" className="primary-btn">
-                Browse Collection
-              </Link>
-            </div>
+      {/* ===== DESKTOP: Split-panel hero (hidden on mobile) ===== */}
+      <div className="hero-split hero-split-desktop">
+        {/* LEFT: Copy panel */}
+        <div className="hero-split-copy">
+          <span className="hero-badge">Foto Palace · Vengavasal</span>
+          <h1 className="hero-split-title" key={activeSlide}>
+            {currentSlide?.title ?? 'No 1 Tech Store in Vengavasal'}
+          </h1>
+          <p className="hero-split-sub" key={`sub-${activeSlide}`}>
+            {currentSlide?.subtitle ?? 'Best Deals on Laptops, Gaming PCs, Printers & More'}
+          </p>
+          <div className="hero-split-actions">
+            <Link href="/laptops" className="primary-btn hero-cta-primary">
+              Browse Collection
+            </Link>
+            <Link href="/contact" className="hero-cta-ghost">
+              Get a Quote
+            </Link>
           </div>
-        </article>
-      ))}
 
-      {/* Desktop dots */}
-      <div className="hero-dots hero-dots-desktop" role="tablist" aria-label="Hero Slides">
-        {heroSlides.map((slide, index) => (
-          <button
-            key={slide.title}
-            type="button"
-            className={`hero-dot ${index === activeSlide ? 'active' : ''}`}
-            onClick={() => setActiveSlide(index)}
-            aria-label={`Show slide ${index + 1}`}
-          />
-        ))}
+          {/* Slide dots inside copy panel */}
+          {heroSlides.length > 1 && (
+            <div className="hero-split-dots" role="tablist" aria-label="Hero Slides">
+              {heroSlides.map((slide, index) => (
+                <button
+                  key={slide.title}
+                  type="button"
+                  className={`hero-dot ${index === activeSlide ? 'active' : ''}`}
+                  onClick={() => setActiveSlide(index)}
+                  aria-label={`Show slide ${index + 1}`}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* RIGHT: Image panel */}
+        <div className="hero-split-image-panel">
+          {heroSlides.map((slide, index) => (
+            <div
+              key={slide.title}
+              className={`hero-split-image-wrap ${index === activeSlide ? 'active' : ''}`}
+              aria-hidden={index !== activeSlide}
+            >
+              <StorefrontImage
+                src={slide.image}
+                alt={slide.title}
+                fill
+                priority={index === 0}
+                sizes="55vw"
+                className="hero-split-img"
+              />
+            </div>
+          ))}
+          {/* Thin tinted edge to blend with dark left panel */}
+          <div className="hero-split-edge" />
+        </div>
       </div>
 
       {/* ===== MOBILE: Product card carousel (hidden on desktop) ===== */}
