@@ -59,7 +59,7 @@ export function Header() {
       {/* ===== ANNOUNCEMENT BAR ===== */}
       <div className="announcement-bar">
         <div className="container announcement-inner">
-          <span>Free delivery on orders above ₹5,000</span>
+          <span>{businessInfo.adBannerText || 'Free delivery on orders above ₹5,000'}</span>
           <span className="announcement-divider">|</span>
           <a href={`tel:${businessInfo.phones[0]}`}>
             Call {businessInfo.phones[0]} for instant quotes

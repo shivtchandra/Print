@@ -100,7 +100,8 @@ export const businessInfoSchema = z.object({
   address: z.string().max(300),
   hours: z.string().max(100),
   copyright: z.string().max(100),
-  googleMapEmbed: z.string().url()
+  googleMapEmbed: z.string().url(),
+  adBannerText: z.string().max(200).optional().or(z.literal(''))
 });
 
 export const siteConfigSchema = z.object({

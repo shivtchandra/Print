@@ -144,9 +144,10 @@ main {
   font-family: var(--font-display), sans-serif;
   font-weight: 700;
   letter-spacing: 0.02em;
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   cursor: pointer;
   border: 1px solid transparent;
+  touch-action: manipulation;
 }
 
 .primary-btn {
@@ -302,11 +303,12 @@ main {
 
 .brand-logo {
   font-family: var(--font-display), sans-serif;
-  font-size: 1.35rem;
+  font-size: clamp(1.1rem, 5vw, 1.35rem);
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--accent);
+  white-space: nowrap;
 }
 
 .brand-subtitle {
@@ -1769,19 +1771,28 @@ main {
 
 .category-hero {
   position: relative;
-  min-height: clamp(330px, 52vw, 500px);
+  min-height: clamp(240px, 40vw, 500px);
 }
 
 .category-hero-copy {
-  min-height: clamp(330px, 52vw, 500px);
-}
+  min-height: clamp(240px, 40vw, 500px);
+} /* We add padding logic independently if needed */
 
 .filter-bar {
   display: grid;
-  gap: 1rem;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
   margin-bottom: 2rem;
   position: relative;
   z-index: 1000;
+}
+
+.filter-bar .custom-dropdown:first-child {
+  grid-column: 1 / -1;
+}
+
+.filter-bar .search-wrap {
+  grid-column: 1 / -1;
 }
 
 .custom-dropdown {
@@ -1794,13 +1805,13 @@ main {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.8rem 1.25rem;
+  padding: 0.6rem 0.8rem;
   background: #111111;
   border: 1px solid var(--border);
   border-radius: 8px;
   color: var(--text);
   font-family: inherit;
-  font-size: 1rem;
+  font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.2s;
   box-shadow: var(--shadow-sm);
@@ -3108,7 +3119,15 @@ th {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .filter-bar,
+  .filter-bar {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  
+  .filter-bar .custom-dropdown:first-child,
+  .filter-bar .search-wrap {
+    grid-column: auto;
+  }
+
   .admin-toolbar {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
@@ -4324,20 +4343,21 @@ th {
   cursor: pointer;
   padding: 0;
   -webkit-tap-highlight-color: transparent;
-  /* Smooth, GPU-accelerated transition */
-  transition: color 0.18s ease, transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* Ultra-fast, snappy transition */
+  transition: color 0.08s ease, transform 0.08s cubic-bezier(0.34, 1.56, 0.64, 1);
   will-change: transform;
   /* Force GPU layer */
   transform: translateZ(0);
+  touch-action: manipulation;
 }
 
 .bottom-nav-item span {
   line-height: 1;
-  transition: opacity 0.18s ease;
+  transition: opacity 0.08s ease;
 }
 
 .bottom-nav-item svg {
-  transition: stroke 0.18s ease, transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: stroke 0.08s ease, transform 0.08s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .bottom-nav-item.active,
@@ -4348,8 +4368,8 @@ th {
 
 /* Quick press-down feedback on tap */
 .bottom-nav-item:active {
-  transform: scale(0.88) translateZ(0);
-  transition-duration: 0.08s;
+  transform: scale(0.92) translateZ(0);
+  transition-duration: 0.04s;
 }
 
 .bottom-nav-item.active svg {
@@ -4370,7 +4390,7 @@ th {
   background: var(--primary);
   margin-top: -18px;
   box-shadow: 0 4px 16px var(--primary-glow);
-  transition: transform 0.2s ease;
+  transition: transform 0.08s ease;
 }
 
 .bottom-nav-cart-icon svg {
@@ -4429,8 +4449,9 @@ th {
   align-items: center;
   justify-content: center;
   box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
   animation: whatsappPulse 2s ease-in-out 1s 3;
+  touch-action: manipulation;
 }
 
 .floating-whatsapp:hover {

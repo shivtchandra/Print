@@ -27,9 +27,9 @@ export function CategoryPageShell({ category, products, children }: CategoryPage
         }}
       />
       <CategoryHero title={meta.heroTitle} subtitle={meta.heroSubtitle} image={meta.heroImage} />
-      <FeatureList title={`${meta.label} Highlights`} items={productFeaturesByCategory[category]} />
       {children}
       <ProductFilterGrid products={products} currentCategory={category} />
+      <FeatureList title={`${meta.label} Highlights`} items={productFeaturesByCategory[category]} />
       <EnquiryForm category={category} sourcePage={`/${category}`} title={`Get ${meta.label} Quote`} />
     </>
   );

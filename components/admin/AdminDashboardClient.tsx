@@ -82,7 +82,8 @@ const defaultConfigForm: ConfigForm = {
     address: '',
     hours: '',
     copyright: '',
-    googleMapEmbed: ''
+    googleMapEmbed: '',
+    adBannerText: ''
   },
   heroSlides: [],
   aboutPage: {
@@ -1054,6 +1055,19 @@ export function AdminDashboardClient() {
                           businessInfo: { ...prev.businessInfo, googleMapEmbed: e.target.value }
                         }))
                       }
+                    />
+                  </label>
+                  <label className="full-width">
+                    Ad Banner Text (Header Announcement)
+                    <input
+                      value={configForm.businessInfo.adBannerText || ''}
+                      onChange={(e) =>
+                        setConfigForm((prev) => ({
+                          ...prev,
+                          businessInfo: { ...prev.businessInfo, adBannerText: e.target.value }
+                        }))
+                      }
+                      placeholder="e.g. Free delivery on orders above ₹5,000"
                     />
                   </label>
                 </div>

@@ -97,6 +97,7 @@ export interface BusinessInfo {
   hours: string;
   copyright: string;
   googleMapEmbed: string;
+  adBannerText?: string;
 }
 
 export interface SiteConfig {
