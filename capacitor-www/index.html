@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data:; style-src 'unsafe-inline';" />
+    <title>Foto Palace Admin</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        font-family: system-ui, sans-serif;
+        margin: 0;
+        padding: 1.5rem;
+        min-height: 100dvh;
+        background: #0f0f0f;
+        color: #e8e8e8;
+        line-height: 1.5;
+      }
+      h1 {
+        font-size: 1.25rem;
+        margin: 0 0 0.75rem;
+      }
+      p {
+        margin: 0 0 1rem;
+        color: #a8a8a8;
+        font-size: 0.95rem;
+      }
+      pre {
+        margin: 0 0 1rem;
+        padding: 1rem;
+        background: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 8px;
+        overflow-x: auto;
+        font-size: 0.8rem;
+        line-height: 1.4;
+      }
+      code {
+        font-family: ui-monospace, monospace;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Admin shell (fallback)</h1>
+    <p>
+      If you see this inside the APK, the WebView is loading local files. Set your live admin URL, sync, and rebuild the
+      Android project.
+    </p>
+    <pre><code>export CAPACITOR_SERVER_URL="https://YOUR_DOMAIN/admin/login"
+npm run cap:sync</code></pre>
+    <p>Then in Android Studio: <strong>Build → Build APK(s)</strong>.</p>
+  </body>
+</html>

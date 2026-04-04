@@ -170,23 +170,37 @@ export function AdminDashboardClient() {
 
   const withAuthFetch = useCallback(
     async (url: string, options: RequestInit) => {
-      const response = await fetch(url, {
-        ...options,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-          ...(options.headers || {})
-        }
-      });
+      let bearer = token;
+      if (user) {
+        bearer = await user.getIdToken();
+      }
+
+      let response: Response;
+      try {
+        response = await fetch(url, {
+          ...options,
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${bearer}`,
+            ...(options.headers || {})
+          }
+        });
+      } catch (err) {
+        throw new Error(err instanceof Error ? err.message : 'Network request failed');
+      }
 
       if (!response.ok) {
-        const data = await response.json().catch(() => ({}));
-        throw new Error(data.error || 'Request failed');
+        const data = (await response.json().catch(() => ({}))) as {
+          error?: string;
+          details?: string;
+        };
+        const message = [data.error, data.details].filter(Boolean).join(': ') || 'Request failed';
+        throw new Error(message);
       }
 
       return response.json().catch(() => ({}));
     },
-    [token]
+    [token, user]
   );
 
   useEffect(() => {
@@ -278,6 +292,8 @@ export function AdminDashboardClient() {
 
     try {
       setStatus(null);
+      const displayOrderRaw = Number(productForm.displayOrder);
+      const displayOrder = Number.isFinite(displayOrderRaw) ? displayOrderRaw : 0;
       const payload = {
         title: productForm.title.trim(),
         category: productForm.category,
@@ -288,9 +304,20 @@ export function AdminDashboardClient() {
         images: productForm.images.split(',').map((image) => image.trim()).filter(Boolean),
         description: productForm.description.trim(),
         isFeatured: productForm.isFeatured,
-        displayOrder: Number(productForm.displayOrder),
+        displayOrder,
         status: productForm.status,
-        customizations: productForm.customizations.filter((c) => c.name.trim() && c.options.some((o) => o.label.trim()))
+        customizations: productForm.customizations
+          .filter((c) => c.name.trim() && c.options.some((o) => o.label.trim()))
+          .map((c) => ({
+            name: c.name.trim(),
+            options: c.options
+              .filter((o) => o.label.trim())
+              .map((o) => {
+                const p = Number(o.price);
+                return { label: o.label.trim(), price: Number.isFinite(p) && p >= 0 ? p : 0 };
+              })
+          }))
+          .filter((c) => c.options.length > 0)
       };
 
       if (editingProductId) {
@@ -830,7 +857,13 @@ export function AdminDashboardClient() {
                         status: product.status,
                         customizations: (product.customizations || []).map((c) => ({
                           name: c.name,
-                          options: c.options.map((o) => ({ label: o.label, price: o.price }))
+                          options: c.options.map((o) => {
+                            const p = Number(o.price);
+                            return {
+                              label: o.label,
+                              price: Number.isFinite(p) && p >= 0 ? p : 0
+                            };
+                          })
                         }))
                       });
                       window.scrollTo({ top: 0, behavior: 'smooth' });

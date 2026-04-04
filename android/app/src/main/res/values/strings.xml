@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Foto Palace Admin</string>
+    <string name="title_activity_main">Foto Palace Admin</string>
+    <string name="package_name">com.fotopalace.admin</string>
+    <string name="custom_url_scheme">com.fotopalace.admin</string>
+</resources>

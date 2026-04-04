@@ -1,7 +1,19 @@
-import { FieldValue } from 'firebase-admin/firestore';
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDoc,
+  getDocs,
+  limit,
+  orderBy,
+  query,
+  serverTimestamp,
+  setDoc
+} from 'firebase/firestore';
 
 import { localId, readLocalAdminStore, writeLocalAdminStore } from '@/lib/data/local-admin-store';
-import { getAdminDb } from '@/lib/firebase/admin';
+import { clientDb } from '@/lib/firebase/client';
 import { Lead, Product, SiteConfig, Testimonial } from '@/lib/types/entities';
 
 const COLLECTIONS = {
@@ -16,11 +28,11 @@ function normalizeDoc<T extends { id?: string }>(id: string, data: Omit<T, 'id'>
 }
 
 export async function addLead(lead: Omit<Lead, 'id' | 'createdAt'>) {
-  const db = getAdminDb();
+  const db = clientDb;
   const payload = {
     ...lead,
     createdAt: new Date().toISOString(),
-    createdAtServer: FieldValue.serverTimestamp()
+    createdAtServer: serverTimestamp()
   };
 
   if (!db) {
@@ -41,57 +53,56 @@ export async function addLead(lead: Omit<Lead, 'id' | 'createdAt'>) {
     return localLead;
   }
 
-  const ref = await db.collection(COLLECTIONS.leads).add(payload);
+  const ref = await addDoc(collection(db, COLLECTIONS.leads), payload);
   return { id: ref.id, ...payload };
 }
 
 export async function listLeads() {
-  const db = getAdminDb();
+  const db = clientDb;
   if (!db) {
     const store = await readLocalAdminStore();
     return store.leads.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
   }
 
-  const snapshot = await db
-    .collection(COLLECTIONS.leads)
-    .orderBy('createdAtServer', 'desc')
-    .limit(500)
-    .get();
+  const q = query(collection(db, COLLECTIONS.leads), orderBy('createdAtServer', 'desc'), limit(500));
+  const snapshot = await getDocs(q);
 
-  return snapshot.docs.map((doc) => normalizeDoc<Lead>(doc.id, doc.data() as Omit<Lead, 'id'>));
+  return snapshot.docs.map((d) => normalizeDoc<Lead>(d.id, d.data() as Omit<Lead, 'id'>));
 }
 
 export async function listProducts() {
-  const db = getAdminDb();
+  const db = clientDb;
   if (!db) {
     const store = await readLocalAdminStore();
     return store.products.sort((a, b) => a.displayOrder - b.displayOrder);
   }
 
-  const snapshot = await db.collection(COLLECTIONS.products).orderBy('displayOrder', 'asc').get();
+  const q = query(collection(db, COLLECTIONS.products), orderBy('displayOrder', 'asc'));
+  const snapshot = await getDocs(q);
 
   if (snapshot.empty) {
     const store = await readLocalAdminStore();
     return store.products.sort((a, b) => a.displayOrder - b.displayOrder);
   }
 
-  return snapshot.docs.map((doc) => normalizeDoc<Product>(doc.id, doc.data() as Omit<Product, 'id'>));
+  return snapshot.docs.map((d) => normalizeDoc<Product>(d.id, d.data() as Omit<Product, 'id'>));
 }
 
 export async function getProduct(id: string) {
-  const db = getAdminDb();
+  const db = clientDb;
   if (!db) {
     const store = await readLocalAdminStore();
     return store.products.find((p) => p.id === id) || null;
   }
 
-  const doc = await db.collection(COLLECTIONS.products).doc(id).get();
-  if (!doc.exists) return null;
-  return normalizeDoc<Product>(doc.id, doc.data() as Omit<Product, 'id'>);
+  const docRef = doc(db, COLLECTIONS.products, id);
+  const docSnap = await getDoc(docRef);
+  if (!docSnap.exists()) return null;
+  return normalizeDoc<Product>(docSnap.id, docSnap.data() as Omit<Product, 'id'>);
 }
 
 export async function createProduct(product: Product) {
-  const db = getAdminDb();
+  const db = clientDb;
   if (!db) {
     const store = await readLocalAdminStore();
     const savedProduct: Product = { ...product, id: localId('product') };
@@ -100,50 +111,52 @@ export async function createProduct(product: Product) {
     return savedProduct;
   }
 
-  const ref = await db.collection(COLLECTIONS.products).add(product);
+  const ref = await addDoc(collection(db, COLLECTIONS.products), product);
   return { id: ref.id, ...product };
 }
 
 export async function updateProduct(id: string, product: Partial<Product>) {
-  const db = getAdminDb();
+  const db = clientDb;
   if (!db) {
     const store = await readLocalAdminStore();
     store.products = store.products.map((item) => (item.id === id ? { ...item, ...product } : item));
     await writeLocalAdminStore(store);
     return;
   }
-  await db.collection(COLLECTIONS.products).doc(id).set(product, { merge: true });
+  await setDoc(doc(db, COLLECTIONS.products, id), product, { merge: true });
 }
 
 export async function deleteProduct(id: string) {
-  const db = getAdminDb();
+  const db = clientDb;
   if (!db) {
     const store = await readLocalAdminStore();
     store.products = store.products.filter((item) => item.id !== id);
     await writeLocalAdminStore(store);
     return;
   }
-  await db.collection(COLLECTIONS.products).doc(id).delete();
+  await deleteDoc(doc(db, COLLECTIONS.products, id));
 }
 
 export async function listTestimonials() {
-  const db = getAdminDb();
+  const db = clientDb;
   if (!db) {
     const store = await readLocalAdminStore();
     return store.testimonials.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
   }
 
-  const snapshot = await db.collection(COLLECTIONS.testimonials).orderBy('createdAt', 'desc').get();
+  const q = query(collection(db, COLLECTIONS.testimonials), orderBy('createdAt', 'desc'));
+  const snapshot = await getDocs(q);
+
   if (snapshot.empty) {
     const store = await readLocalAdminStore();
     return store.testimonials.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
   }
 
-  return snapshot.docs.map((doc) => normalizeDoc<Testimonial>(doc.id, doc.data() as Omit<Testimonial, 'id'>));
+  return snapshot.docs.map((d) => normalizeDoc<Testimonial>(d.id, d.data() as Omit<Testimonial, 'id'>));
 }
 
 export async function createTestimonial(testimonial: Testimonial) {
-  const db = getAdminDb();
+  const db = clientDb;
   if (!db) {
     const store = await readLocalAdminStore();
     const savedTestimonial: Testimonial = {
@@ -156,12 +169,12 @@ export async function createTestimonial(testimonial: Testimonial) {
     return savedTestimonial;
   }
 
-  const ref = await db.collection(COLLECTIONS.testimonials).add(testimonial);
+  const ref = await addDoc(collection(db, COLLECTIONS.testimonials), testimonial);
   return { id: ref.id, ...testimonial };
 }
 
 export async function updateTestimonial(id: string, testimonial: Partial<Testimonial>) {
-  const db = getAdminDb();
+  const db = clientDb;
   if (!db) {
     const store = await readLocalAdminStore();
     store.testimonials = store.testimonials.map((item) =>
@@ -170,38 +183,39 @@ export async function updateTestimonial(id: string, testimonial: Partial<Testimo
     await writeLocalAdminStore(store);
     return;
   }
-  await db.collection(COLLECTIONS.testimonials).doc(id).set(testimonial, { merge: true });
+  await setDoc(doc(db, COLLECTIONS.testimonials, id), testimonial, { merge: true });
 }
 
 export async function deleteTestimonial(id: string) {
-  const db = getAdminDb();
+  const db = clientDb;
   if (!db) {
     const store = await readLocalAdminStore();
     store.testimonials = store.testimonials.filter((item) => item.id !== id);
     await writeLocalAdminStore(store);
     return;
   }
-  await db.collection(COLLECTIONS.testimonials).doc(id).delete();
+  await deleteDoc(doc(db, COLLECTIONS.testimonials, id));
 }
 
 export async function getSiteConfig() {
-  const db = getAdminDb();
+  const db = clientDb;
   if (!db) {
     const store = await readLocalAdminStore();
     return store.siteConfig;
   }
 
-  const doc = await db.collection(COLLECTIONS.config).doc('default').get();
-  if (!doc.exists) {
+  const docRef = doc(db, COLLECTIONS.config, 'default');
+  const docSnap = await getDoc(docRef);
+  if (!docSnap.exists()) {
     const store = await readLocalAdminStore();
     return store.siteConfig;
   }
 
-  return normalizeDoc<SiteConfig>(doc.id, doc.data() as Omit<SiteConfig, 'id'>);
+  return normalizeDoc<SiteConfig>(docSnap.id, docSnap.data() as Omit<SiteConfig, 'id'>);
 }
 
 export async function updateSiteConfig(config: SiteConfig) {
-  const db = getAdminDb();
+  const db = clientDb;
   if (!db) {
     const store = await readLocalAdminStore();
     store.siteConfig = { ...config, id: 'default' };
@@ -209,5 +223,5 @@ export async function updateSiteConfig(config: SiteConfig) {
     return;
   }
 
-  await db.collection(COLLECTIONS.config).doc('default').set(config, { merge: true });
+  await setDoc(doc(db, COLLECTIONS.config, 'default'), config, { merge: true });
 }
