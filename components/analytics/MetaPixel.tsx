@@ -11,7 +11,7 @@ export function MetaPixel() {
 
   useEffect(() => {
     if (!pixelId) return;
-    // @ts-ignore
+    // @ts-expect-error fbq is added by the Meta Pixel script
     window.fbq('track', 'PageView');
   }, [pathname]);
 
@@ -34,11 +34,13 @@ export function MetaPixel() {
         `}
       </Script>
       <noscript>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           height="1"
           width="1"
           style={{ display: 'none' }}
           src={`https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1`}
+          alt=""
         />
       </noscript>
     </>

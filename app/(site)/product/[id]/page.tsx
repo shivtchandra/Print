@@ -1,7 +1,6 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 
-import { StorefrontImage } from '@/components/media/StorefrontImage';
 import { getStorefrontProduct } from '@/lib/data/storefront';
 import { getStorefrontConfig } from '@/lib/data/storefront';
 import { pageMetadata } from '@/lib/seo/metadata';

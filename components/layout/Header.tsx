@@ -24,7 +24,6 @@ export function Header() {
   const { businessInfo } = useConfig();
   const { totalItems, openDrawer } = useCart();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isProductsOpen, setIsProductsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -41,7 +40,6 @@ export function Header() {
 
   function closeMenu() {
     setIsMenuOpen(false);
-    setIsProductsOpen(false);
   }
 
   const CartIcon = (
@@ -74,7 +72,7 @@ export function Header() {
           <div className="mobile-header-row">
             <button
               className="menu-toggle"
-              onClick={() => { setIsMenuOpen(!isMenuOpen); setIsProductsOpen(false); }}
+              onClick={() => { setIsMenuOpen(!isMenuOpen); }}
               aria-label="Toggle Menu"
             >
               <span className={`hamburger ${isMenuOpen ? 'active' : ''}`}></span>

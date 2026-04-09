@@ -2,6 +2,7 @@
 
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { useState, useRef, ChangeEvent, useEffect } from 'react';
+import Image from 'next/image';
 import { clientStorage } from '@/lib/firebase/client';
 
 interface ImageUploadProps {
@@ -26,9 +27,10 @@ export function ImageUpload({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Sync internal previews when initialUrls prop changes (e.g. switching between products being edited)
+  const initialUrlsString = JSON.stringify(initialUrls);
   useEffect(() => {
     setPreviews(initialUrls);
-  }, [JSON.stringify(initialUrls)]);
+  }, [initialUrlsString, initialUrls]);
 
 
   const handleFileUpload = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -112,7 +114,14 @@ export function ImageUpload({
       <div className="image-previews">
         {previews.map((url, idx) => (
           <div key={idx} className="preview-item">
-            <img src={url} alt={`Preview ${idx}`} />
+            <Image 
+              src={url} 
+              alt={`Preview ${idx}`} 
+              width={100} 
+              height={100} 
+              className="object-cover"
+              unoptimized
+            />
             <button type="button" className="remove-btn" onClick={() => removeImage(idx)}>
               ×
             </button>
