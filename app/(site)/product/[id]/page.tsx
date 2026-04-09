@@ -7,6 +7,7 @@ import { getStorefrontConfig } from '@/lib/data/storefront';
 import { pageMetadata } from '@/lib/seo/metadata';
 import { EnquiryForm } from '@/components/forms/EnquiryForm';
 import { LaptopCustomizationPanel } from '@/components/product/LaptopCustomizationPanel';
+import { ProductGallery } from '@/components/product/ProductGallery';
 
 interface ProductPageProps {
   params: Promise<{ id: string }>;
@@ -80,26 +81,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
         <section className="product-main-layout">
           {/* 1. Gallery Column */}
           <div className="gallery-col">
-            <div className="gallery-container">
-              <div className="thumbnails-vertical">
-                {product.images.map((img, idx) => (
-                  <div key={idx} className={`thumb-item ${idx === 0 ? 'active' : ''}`}>
-                    <StorefrontImage src={img} alt={`${product.title} view ${idx + 1}`} fill className="object-cover" />
-                  </div>
-                ))}
-              </div>
-              <div className="main-stage">
-                <div className="main-image-wrap">
-                  <StorefrontImage
-                    src={product.images[0]}
-                    alt={product.title}
-                    fill
-                    priority
-                    className="object-cover"
-                  />
-                </div>
-              </div>
-            </div>
+            <ProductGallery images={product.images} title={product.title} />
           </div>
 
           {/* 2. Info Column */}

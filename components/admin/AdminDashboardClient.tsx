@@ -12,6 +12,7 @@ import {
 } from '@/lib/admin/static-admin';
 import { clientAuth, clientFirebaseReady } from '@/lib/firebase/client';
 import { toCsv } from '@/lib/utils/format';
+import { ImageUpload } from '../media/ImageUpload';
 import { Lead, Product, ProductCategory, SiteConfig, Testimonial } from '@/lib/types/entities';
 
 const categories: ProductCategory[] = [
@@ -422,6 +423,348 @@ export function AdminDashboardClient() {
     }
   }
 
+
+  const renderProductForm = () => (
+    <form className="admin-form" onSubmit={handleProductSubmit}>
+      <label>
+        Title
+        <input
+          required
+          value={productForm.title}
+          onChange={(event) => setProductForm((prev) => ({ ...prev, title: event.target.value }))}
+        />
+      </label>
+      <label>
+        Category
+        <select
+          value={productForm.category}
+          onChange={(event) =>
+            setProductForm((prev) => ({ ...prev, category: event.target.value as ProductCategory }))
+          }
+        >
+          {categories.map((category) => (
+            <option key={category} value={category}>
+              {category}
+            </option>
+          ))}
+        </select>
+      </label>
+      <label>
+        Brand
+        <input
+          required
+          value={productForm.brand}
+          onChange={(event) => setProductForm((prev) => ({ ...prev, brand: event.target.value }))}
+        />
+      </label>
+      <label>
+        Price Range
+        <input
+          required
+          value={productForm.priceRange}
+          onChange={(event) => setProductForm((prev) => ({ ...prev, priceRange: event.target.value }))}
+        />
+      </label>
+      <label>
+        Product Description
+        <textarea
+          value={productForm.description}
+          onChange={(event) => setProductForm((prev) => ({ ...prev, description: event.target.value }))}
+          rows={4}
+          placeholder="Detailed description of the product..."
+        />
+      </label>
+      <label>
+        Specs (comma separated)
+        <input
+          required
+          value={productForm.specs}
+          onChange={(event) => setProductForm((prev) => ({ ...prev, specs: event.target.value }))}
+        />
+      </label>
+      <label>
+        Features (comma separated)
+        <input
+          required
+          value={productForm.features}
+          onChange={(event) => setProductForm((prev) => ({ ...prev, features: event.target.value }))}
+        />
+      </label>
+      <label className="full-width">
+        Product Images
+        <ImageUpload
+          folder="products"
+          allowMultiple={true}
+          maxFiles={10}
+          initialUrls={productForm.images.split(',').map(u => u.trim()).filter(Boolean)}
+          onUploadComplete={(urls) => setProductForm(prev => ({ ...prev, images: urls.join(',') }))}
+        />
+        <p className="muted-text mt-2" style={{ fontSize: '0.8rem' }}>
+          Upload product photos. The first image will be used as the main thumbnail. 
+          You can also manually edit the URLs below if needed.
+        </p>
+        <input
+          value={productForm.images}
+          onChange={(event) => setProductForm((prev) => ({ ...prev, images: event.target.value }))}
+          placeholder="Comma separated URLs..."
+          style={{ marginTop: '0.5rem', fontSize: '0.8rem' }}
+        />
+      </label>
+      <label>
+        Display Order
+        <input
+          type="number"
+          value={productForm.displayOrder}
+          onChange={(event) =>
+            setProductForm((prev) => ({ ...prev, displayOrder: Number(event.target.value) || 0 }))
+          }
+        />
+      </label>
+      <label>
+        Status
+        <select
+          value={productForm.status}
+          onChange={(event) =>
+            setProductForm((prev) => ({ ...prev, status: event.target.value as 'active' | 'inactive' }))
+          }
+        >
+          <option value="active">active</option>
+          <option value="inactive">inactive</option>
+        </select>
+      </label>
+      <label className="checkbox-label">
+        <input
+          type="checkbox"
+          checked={productForm.isFeatured}
+          onChange={(event) => setProductForm((prev) => ({ ...prev, isFeatured: event.target.checked }))}
+        />
+        Featured Product
+      </label>
+
+      <div className="form-section mt-10">
+        <div className="flex-between">
+          <h3>Customization Options</h3>
+          <button
+            type="button"
+            className="secondary-btn sm"
+            onClick={() =>
+              setProductForm((prev) => ({
+                ...prev,
+                customizations: [...prev.customizations, { name: '', options: [{ label: '', price: 0 }] }]
+              }))
+            }
+          >
+            + Add Category
+          </button>
+        </div>
+        <p className="muted-text" style={{ marginTop: '0.5rem' }}>
+          Add upgrade categories like RAM, Processor, Storage. Customers can pick options and get a quote.
+        </p>
+
+        <div className="slides-container">
+          {productForm.customizations.map((cat, catIdx) => (
+            <article key={catIdx} className="admin-sub-card">
+              <div className="flex-between">
+                <h4>Category {catIdx + 1}</h4>
+                <button
+                  type="button"
+                  className="danger-btn sm"
+                  onClick={() => {
+                    const next = [...productForm.customizations];
+                    next.splice(catIdx, 1);
+                    setProductForm((prev) => ({ ...prev, customizations: next }));
+                  }}
+                >
+                  Remove
+                </button>
+              </div>
+              <div className="form-grid-inner">
+                <label className="full-width">
+                  Category Name (e.g. RAM, Processor)
+                  <input
+                    value={cat.name}
+                    onChange={(e) => {
+                      const next = [...productForm.customizations];
+                      next[catIdx] = { ...next[catIdx], name: e.target.value };
+                      setProductForm((prev) => ({ ...prev, customizations: next }));
+                    }}
+                  />
+                </label>
+              </div>
+
+              <div className="form-section" style={{ marginTop: '0.75rem' }}>
+                <div className="flex-between">
+                  <h4 style={{ fontSize: '0.95rem' }}>Options</h4>
+                  <button
+                    type="button"
+                    className="secondary-btn sm"
+                    onClick={() => {
+                      const next = [...productForm.customizations];
+                      next[catIdx] = {
+                        ...next[catIdx],
+                        options: [...next[catIdx].options, { label: '', price: 0 }]
+                      };
+                      setProductForm((prev) => ({ ...prev, customizations: next }));
+                    }}
+                  >
+                    + Add Option
+                  </button>
+                </div>
+                <div className="slides-container">
+                  {cat.options.map((opt, optIdx) => (
+                    <div key={optIdx} className="admin-sub-card" style={{ padding: '0.75rem' }}>
+                      <div className="flex-between">
+                        <small>Option {optIdx + 1}</small>
+                        <button
+                          type="button"
+                          className="danger-btn sm"
+                          onClick={() => {
+                            const next = [...productForm.customizations];
+                            const opts = [...next[catIdx].options];
+                            opts.splice(optIdx, 1);
+                            next[catIdx] = { ...next[catIdx], options: opts.length ? opts : [{ label: '', price: 0 }] };
+                            setProductForm((prev) => ({ ...prev, customizations: next }));
+                          }}
+                        >
+                          ×
+                        </button>
+                      </div>
+                      <div className="form-grid-inner">
+                        <label>
+                          Label
+                          <input
+                            value={opt.label}
+                            onChange={(e) => {
+                              const next = [...productForm.customizations];
+                              const opts = [...next[catIdx].options];
+                              opts[optIdx] = { ...opts[optIdx], label: e.target.value };
+                              next[catIdx] = { ...next[catIdx], options: opts };
+                              setProductForm((prev) => ({ ...prev, customizations: next }));
+                            }}
+                          />
+                        </label>
+                        <label>
+                          Price (+₹)
+                          <input
+                            type="number"
+                            min={0}
+                            value={opt.price}
+                            onChange={(e) => {
+                              const next = [...productForm.customizations];
+                              const opts = [...next[catIdx].options];
+                              opts[optIdx] = { ...opts[optIdx], price: Number(e.target.value) || 0 };
+                              next[catIdx] = { ...next[catIdx], options: opts };
+                              setProductForm((prev) => ({ ...prev, customizations: next }));
+                            }}
+                          />
+                        </label>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </article>
+          ))}
+          {productForm.customizations.length === 0 && (
+            <p className="muted-text">
+              No customization categories. Click &quot;+ Add Category&quot; to add upgrade options like RAM,
+              Processor, etc.
+            </p>
+          )}
+        </div>
+      </div>
+
+      <div className="button-row">
+        <button className="primary-btn" type="submit">
+          {editingProductId ? 'Save Changes' : 'Add Product'}
+        </button>
+        {editingProductId && (
+          <button
+            className="secondary-btn"
+            type="button"
+            onClick={() => {
+              setEditingProductId(null);
+              setProductForm(defaultProductForm);
+            }}
+          >
+            Cancel Edit
+          </button>
+        )}
+      </div>
+    </form>
+  );
+
+  const renderTestimonialForm = () => (
+    <form className="admin-form" onSubmit={handleTestimonialSubmit}>
+      <label>
+        Customer Name
+        <input
+          required
+          value={testimonialForm.customerName}
+          onChange={(event) =>
+            setTestimonialForm((prev) => ({ ...prev, customerName: event.target.value }))
+          }
+        />
+      </label>
+      <label className="full-width">
+        Quote
+        <textarea
+          rows={3}
+          required
+          value={testimonialForm.quote}
+          onChange={(event) => setTestimonialForm((prev) => ({ ...prev, quote: event.target.value }))}
+        />
+      </label>
+      <label>
+        Rating
+        <input
+          type="number"
+          min={1}
+          max={5}
+          value={testimonialForm.rating}
+          onChange={(event) =>
+            setTestimonialForm((prev) => ({ ...prev, rating: Number(event.target.value) || 5 }))
+          }
+        />
+      </label>
+      <label>
+        Location
+        <input
+          value={testimonialForm.location}
+          onChange={(event) => setTestimonialForm((prev) => ({ ...prev, location: event.target.value }))}
+        />
+      </label>
+      <label className="checkbox-label">
+        <input
+          type="checkbox"
+          checked={testimonialForm.isPublished}
+          onChange={(event) =>
+            setTestimonialForm((prev) => ({ ...prev, isPublished: event.target.checked }))
+          }
+        />
+        Publish on website
+      </label>
+
+      <div className="button-row">
+        <button className="primary-btn" type="submit">
+          {editingTestimonialId ? 'Save Changes' : 'Add Testimonial'}
+        </button>
+        {editingTestimonialId && (
+          <button
+            className="secondary-btn"
+            type="button"
+            onClick={() => {
+              setEditingTestimonialId(null);
+              setTestimonialForm(defaultTestimonialForm);
+            }}
+          >
+            Cancel Edit
+          </button>
+        )}
+      </div>
+    </form>
+  );
+
   if (!authReady) {
     return <p>Loading admin session...</p>;
   }
@@ -564,318 +907,86 @@ export function AdminDashboardClient() {
 
       {tab === 'products' && (
         <section className="admin-card">
-          <h2>{editingProductId ? 'Edit Product' : 'Add Product'}</h2>
-          <p className="muted-text">Update product cards that appear on category pages.</p>
-          <form className="admin-form" onSubmit={handleProductSubmit}>
-            <label>
-              Title
-              <input
-                required
-                value={productForm.title}
-                onChange={(event) => setProductForm((prev) => ({ ...prev, title: event.target.value }))}
-              />
-            </label>
-            <label>
-              Category
-              <select
-                value={productForm.category}
-                onChange={(event) =>
-                  setProductForm((prev) => ({ ...prev, category: event.target.value as ProductCategory }))
-                }
-              >
-                {categories.map((category) => (
-                  <option key={category} value={category}>
-                    {category}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label>
-              Brand
-              <input
-                required
-                value={productForm.brand}
-                onChange={(event) => setProductForm((prev) => ({ ...prev, brand: event.target.value }))}
-              />
-            </label>
-            <label>
-              Price Range
-              <input
-                required
-                value={productForm.priceRange}
-                onChange={(event) => setProductForm((prev) => ({ ...prev, priceRange: event.target.value }))}
-              />
-            </label>
-            <label>
-              Product Description
-              <textarea
-                value={productForm.description}
-                onChange={(event) => setProductForm((prev) => ({ ...prev, description: event.target.value }))}
-                rows={4}
-                placeholder="Detailed description of the product..."
-              />
-            </label>
-            <label>
-              Specs (comma separated)
-              <input
-                required
-                value={productForm.specs}
-                onChange={(event) => setProductForm((prev) => ({ ...prev, specs: event.target.value }))}
-              />
-            </label>
-            <label>
-              Features (comma separated)
-              <input
-                required
-                value={productForm.features}
-                onChange={(event) => setProductForm((prev) => ({ ...prev, features: event.target.value }))}
-              />
-            </label>
-            <label>
-              Image URLs (comma separated)
-              <input
-                required
-                value={productForm.images}
-                onChange={(event) => setProductForm((prev) => ({ ...prev, images: event.target.value }))}
-                placeholder="https://… or Google Drive share link (Anyone with the link)"
-              />
-            </label>
-            <label>
-              Display Order
-              <input
-                type="number"
-                value={productForm.displayOrder}
-                onChange={(event) =>
-                  setProductForm((prev) => ({ ...prev, displayOrder: Number(event.target.value) || 0 }))
-                }
-              />
-            </label>
-            <label>
-              Status
-              <select
-                value={productForm.status}
-                onChange={(event) =>
-                  setProductForm((prev) => ({ ...prev, status: event.target.value as 'active' | 'inactive' }))
-                }
-              >
-                <option value="active">active</option>
-                <option value="inactive">inactive</option>
-              </select>
-            </label>
-            <label className="checkbox-label">
-              <input
-                type="checkbox"
-                checked={productForm.isFeatured}
-                onChange={(event) => setProductForm((prev) => ({ ...prev, isFeatured: event.target.checked }))}
-              />
-              Featured Product
-            </label>
+          {!editingProductId && (
+            <>
+              <h2>Add Product</h2>
+              <p className="muted-text">Update product cards that appear on category pages.</p>
+              {renderProductForm()}
+            </>
+          )}
 
-            <div className="form-section mt-10">
-              <div className="flex-between">
-                <h3>Customization Options</h3>
-                <button
-                  type="button"
-                  className="secondary-btn sm"
-                  onClick={() =>
-                    setProductForm((prev) => ({
-                      ...prev,
-                      customizations: [...prev.customizations, { name: '', options: [{ label: '', price: 0 }] }]
-                    }))
-                  }
-                >
-                  + Add Category
-                </button>
-              </div>
-              <p className="muted-text" style={{ marginTop: '0.5rem' }}>
-                Add upgrade categories like RAM, Processor, Storage. Customers can pick options and get a quote.
-              </p>
+          <div className="admin-list" style={{ marginTop: editingProductId ? '0' : '2.5rem' }}>
+            {products.map((product) => (
+              <div key={product.id || product.title}>
+                <article className={editingProductId === product.id ? "admin-item editing" : "admin-item"}>
+                  <div className="admin-item-header">
+                    <h3>{product.title}</h3>
+                    <div className="badge-row">
+                      <span className="badge">{product.category}</span>
+                      <span className={`status-badge ${product.status}`}>{product.status}</span>
+                      {product.isFeatured && <span className="featured-badge">Featured</span>}
+                    </div>
+                  </div>
+                  <div className="admin-item-content">
+                    <p><strong>Brand:</strong> {product.brand} | <strong>Price:</strong> {product.priceRange}</p>
+                    <p className="specs-preview">{product.specs.join(' • ')}</p>
+                  </div>
+                  <div className="admin-item-actions">
+                    <button
+                      className="secondary-btn"
+                      onClick={() => {
+                        setEditingProductId(product.id || null);
+                        setProductForm({
+                          title: product.title,
+                          category: product.category,
+                          brand: product.brand,
+                          priceRange: product.priceRange,
+                          specs: product.specs.join(', '),
+                          features: product.features.join(', '),
+                          images: product.images.join(', '),
+                          description: product.description || '',
+                          isFeatured: product.isFeatured,
+                          displayOrder: product.displayOrder,
+                          status: product.status,
+                          customizations: (product.customizations || []).map((c) => ({
+                            name: c.name,
+                            options: c.options.map((o) => {
+                              const p = Number(o.price);
+                              return {
+                                label: o.label,
+                                price: Number.isFinite(p) && p >= 0 ? p : 0
+                              };
+                            })
+                          }))
+                        });
+                      }}
+                    >
+                      {editingProductId === product.id ? 'Currently Editing...' : 'Edit Product'}
+                    </button>
+                    <button className="danger-btn" onClick={() => handleDeleteProduct(product.id)}>
+                      Delete
+                    </button>
+                  </div>
+                </article>
 
-              <div className="slides-container">
-                {productForm.customizations.map((cat, catIdx) => (
-                  <article key={catIdx} className="admin-sub-card">
-                    <div className="flex-between">
-                      <h4>Category {catIdx + 1}</h4>
-                      <button
-                        type="button"
-                        className="danger-btn sm"
+                {editingProductId === product.id && (
+                  <div className="inline-edit-form-wrap">
+                    <div className="flex-between mb-4">
+                      <h2 style={{ margin: 0 }}>Editing: {product.title}</h2>
+                      <button 
+                        className="secondary-btn sm" 
                         onClick={() => {
-                          const next = [...productForm.customizations];
-                          next.splice(catIdx, 1);
-                          setProductForm((prev) => ({ ...prev, customizations: next }));
+                          setEditingProductId(null);
+                          setProductForm(defaultProductForm);
                         }}
                       >
-                        Remove
+                        Cancel
                       </button>
                     </div>
-                    <div className="form-grid-inner">
-                      <label className="full-width">
-                        Category Name (e.g. RAM, Processor)
-                        <input
-                          value={cat.name}
-                          onChange={(e) => {
-                            const next = [...productForm.customizations];
-                            next[catIdx] = { ...next[catIdx], name: e.target.value };
-                            setProductForm((prev) => ({ ...prev, customizations: next }));
-                          }}
-                        />
-                      </label>
-                    </div>
-
-                    <div className="form-section" style={{ marginTop: '0.75rem' }}>
-                      <div className="flex-between">
-                        <h4 style={{ fontSize: '0.95rem' }}>Options</h4>
-                        <button
-                          type="button"
-                          className="secondary-btn sm"
-                          onClick={() => {
-                            const next = [...productForm.customizations];
-                            next[catIdx] = {
-                              ...next[catIdx],
-                              options: [...next[catIdx].options, { label: '', price: 0 }]
-                            };
-                            setProductForm((prev) => ({ ...prev, customizations: next }));
-                          }}
-                        >
-                          + Add Option
-                        </button>
-                      </div>
-                      <div className="slides-container">
-                        {cat.options.map((opt, optIdx) => (
-                          <div key={optIdx} className="admin-sub-card" style={{ padding: '0.75rem' }}>
-                            <div className="flex-between">
-                              <small>Option {optIdx + 1}</small>
-                              <button
-                                type="button"
-                                className="danger-btn sm"
-                                onClick={() => {
-                                  const next = [...productForm.customizations];
-                                  const opts = [...next[catIdx].options];
-                                  opts.splice(optIdx, 1);
-                                  next[catIdx] = { ...next[catIdx], options: opts.length ? opts : [{ label: '', price: 0 }] };
-                                  setProductForm((prev) => ({ ...prev, customizations: next }));
-                                }}
-                              >
-                                ×
-                              </button>
-                            </div>
-                            <div className="form-grid-inner">
-                              <label>
-                                Label
-                                <input
-                                  value={opt.label}
-                                  onChange={(e) => {
-                                    const next = [...productForm.customizations];
-                                    const opts = [...next[catIdx].options];
-                                    opts[optIdx] = { ...opts[optIdx], label: e.target.value };
-                                    next[catIdx] = { ...next[catIdx], options: opts };
-                                    setProductForm((prev) => ({ ...prev, customizations: next }));
-                                  }}
-                                />
-                              </label>
-                              <label>
-                                Price (+₹)
-                                <input
-                                  type="number"
-                                  min={0}
-                                  value={opt.price}
-                                  onChange={(e) => {
-                                    const next = [...productForm.customizations];
-                                    const opts = [...next[catIdx].options];
-                                    opts[optIdx] = { ...opts[optIdx], price: Number(e.target.value) || 0 };
-                                    next[catIdx] = { ...next[catIdx], options: opts };
-                                    setProductForm((prev) => ({ ...prev, customizations: next }));
-                                  }}
-                                />
-                              </label>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </article>
-                ))}
-                {productForm.customizations.length === 0 && (
-                  <p className="muted-text">
-                    No customization categories. Click &quot;+ Add Category&quot; to add upgrade options like RAM,
-                    Processor, etc.
-                  </p>
+                    {renderProductForm()}
+                  </div>
                 )}
               </div>
-            </div>
-
-            <div className="button-row">
-              <button className="primary-btn" type="submit">
-                {editingProductId ? 'Save Changes' : 'Add Product'}
-              </button>
-              {editingProductId && (
-                <button
-                  className="secondary-btn"
-                  type="button"
-                  onClick={() => {
-                    setEditingProductId(null);
-                    setProductForm(defaultProductForm);
-                  }}
-                >
-                  Cancel Edit
-                </button>
-              )}
-            </div>
-          </form>
-
-          <div className="admin-list">
-            {products.map((product) => (
-              <article className="admin-item" key={product.id || product.title}>
-                <div className="admin-item-header">
-                  <h3>{product.title}</h3>
-                  <div className="badge-row">
-                    <span className="badge">{product.category}</span>
-                    <span className={`status-badge ${product.status}`}>{product.status}</span>
-                    {product.isFeatured && <span className="featured-badge">Featured</span>}
-                  </div>
-                </div>
-                <div className="admin-item-content">
-                  <p><strong>Brand:</strong> {product.brand} | <strong>Price:</strong> {product.priceRange}</p>
-                  <p className="specs-preview">{product.specs.join(' • ')}</p>
-                </div>
-                <div className="admin-item-actions">
-                  <button
-                    className="secondary-btn"
-                    onClick={() => {
-                      setEditingProductId(product.id || null);
-                      setProductForm({
-                        title: product.title,
-                        category: product.category,
-                        brand: product.brand,
-                        priceRange: product.priceRange,
-                        specs: product.specs.join(', '),
-                        features: product.features.join(', '),
-                        images: product.images.join(', '),
-                        description: product.description || '',
-                        isFeatured: product.isFeatured,
-                        displayOrder: product.displayOrder,
-                        status: product.status,
-                        customizations: (product.customizations || []).map((c) => ({
-                          name: c.name,
-                          options: c.options.map((o) => {
-                            const p = Number(o.price);
-                            return {
-                              label: o.label,
-                              price: Number.isFinite(p) && p >= 0 ? p : 0
-                            };
-                          })
-                        }))
-                      });
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }}
-                  >
-                    Edit Product
-                  </button>
-                  <button className="danger-btn" onClick={() => handleDeleteProduct(product.id)}>
-                    Delete
-                  </button>
-                </div>
-              </article>
             ))}
           </div>
         </section>
@@ -883,116 +994,72 @@ export function AdminDashboardClient() {
 
       {tab === 'testimonials' && (
         <section className="admin-card">
-          <h2>{editingTestimonialId ? 'Edit Testimonial' : 'Add Testimonial'}</h2>
-          <p className="muted-text">Manage customer quotes shown on the home page.</p>
-          <form className="admin-form" onSubmit={handleTestimonialSubmit}>
-            <label>
-              Customer Name
-              <input
-                required
-                value={testimonialForm.customerName}
-                onChange={(event) =>
-                  setTestimonialForm((prev) => ({ ...prev, customerName: event.target.value }))
-                }
-              />
-            </label>
-            <label className="full-width">
-              Quote
-              <textarea
-                rows={3}
-                required
-                value={testimonialForm.quote}
-                onChange={(event) => setTestimonialForm((prev) => ({ ...prev, quote: event.target.value }))}
-              />
-            </label>
-            <label>
-              Rating
-              <input
-                type="number"
-                min={1}
-                max={5}
-                value={testimonialForm.rating}
-                onChange={(event) =>
-                  setTestimonialForm((prev) => ({ ...prev, rating: Number(event.target.value) || 5 }))
-                }
-              />
-            </label>
-            <label>
-              Location
-              <input
-                value={testimonialForm.location}
-                onChange={(event) => setTestimonialForm((prev) => ({ ...prev, location: event.target.value }))}
-              />
-            </label>
-            <label className="checkbox-label">
-              <input
-                type="checkbox"
-                checked={testimonialForm.isPublished}
-                onChange={(event) =>
-                  setTestimonialForm((prev) => ({ ...prev, isPublished: event.target.checked }))
-                }
-              />
-              Publish on website
-            </label>
+          {!editingTestimonialId && (
+            <>
+              <h2>Add Testimonial</h2>
+              <p className="muted-text">Manage customer quotes shown on the home page.</p>
+              {renderTestimonialForm()}
+            </>
+          )}
 
-            <div className="button-row">
-              <button className="primary-btn" type="submit">
-                {editingTestimonialId ? 'Save Changes' : 'Add Testimonial'}
-              </button>
-              {editingTestimonialId && (
-                <button
-                  className="secondary-btn"
-                  type="button"
-                  onClick={() => {
-                    setEditingTestimonialId(null);
-                    setTestimonialForm(defaultTestimonialForm);
-                  }}
-                >
-                  Cancel Edit
-                </button>
-              )}
-            </div>
-          </form>
-
-          <div className="admin-list">
+          <div className="admin-list" style={{ marginTop: editingTestimonialId ? '0' : '2.5rem' }}>
             {testimonials.map((item) => (
-              <article className="admin-item" key={item.id || `${item.customerName}-${item.createdAt}`}>
-                <div className="admin-item-header">
-                  <h3>{item.customerName}</h3>
-                  <div className="badge-row">
-                    <span className="badge">{item.location || 'Vengavasal'}</span>
-                    <span className={`status-badge ${item.isPublished ? 'published' : 'hidden'}`}>
-                      {item.isPublished ? 'Published' : 'Hidden'}
-                    </span>
+              <div key={item.id || `${item.customerName}-${item.createdAt}`}>
+                <article className={editingTestimonialId === item.id ? "admin-item editing" : "admin-item"}>
+                  <div className="admin-item-header">
+                    <h3>{item.customerName}</h3>
+                    <div className="badge-row">
+                      <span className="badge">{item.location || 'Vengavasal'}</span>
+                      <span className={`status-badge ${item.isPublished ? 'published' : 'hidden'}`}>
+                        {item.isPublished ? 'Published' : 'Hidden'}
+                      </span>
+                    </div>
                   </div>
-                </div>
-                <div className="admin-item-content">
-                  <div className="message-box quote">
-                    <p>&quot;{item.quote}&quot;</p>
+                  <div className="admin-item-content">
+                    <div className="message-box quote">
+                      <p>&quot;{item.quote}&quot;</p>
+                    </div>
                   </div>
-                </div>
-                <div className="admin-item-actions">
-                  <button
-                    className="secondary-btn"
-                    onClick={() => {
-                      setEditingTestimonialId(item.id || null);
-                      setTestimonialForm({
-                        customerName: item.customerName,
-                        quote: item.quote,
-                        rating: item.rating || 5,
-                        location: item.location || '',
-                        isPublished: item.isPublished
-                      });
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }}
-                  >
-                    Edit Testimonial
-                  </button>
-                  <button className="danger-btn" onClick={() => handleDeleteTestimonial(item.id)}>
-                    Delete
-                  </button>
-                </div>
-              </article>
+                  <div className="admin-item-actions">
+                    <button
+                      className="secondary-btn"
+                      onClick={() => {
+                        setEditingTestimonialId(item.id || null);
+                        setTestimonialForm({
+                          customerName: item.customerName,
+                          quote: item.quote,
+                          rating: item.rating || 5,
+                          location: item.location || '',
+                          isPublished: item.isPublished
+                        });
+                      }}
+                    >
+                      {editingTestimonialId === item.id ? 'Currently Editing...' : 'Edit Testimonial'}
+                    </button>
+                    <button className="danger-btn" onClick={() => handleDeleteTestimonial(item.id)}>
+                      Delete
+                    </button>
+                  </div>
+                </article>
+
+                {editingTestimonialId === item.id && (
+                  <div className="inline-edit-form-wrap">
+                    <div className="flex-between mb-4">
+                      <h2 style={{ margin: 0 }}>Editing: {item.customerName}</h2>
+                      <button 
+                        className="secondary-btn sm" 
+                        onClick={() => {
+                          setEditingTestimonialId(null);
+                          setTestimonialForm(defaultTestimonialForm);
+                        }}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                    {renderTestimonialForm()}
+                  </div>
+                )}
+              </div>
             ))}
           </div>
         </section>
@@ -1165,7 +1232,17 @@ export function AdminDashboardClient() {
                           />
                         </label>
                         <label className="full-width">
-                          Image URL
+                          Slide Image
+                          <ImageUpload
+                            folder="heroes"
+                            allowMultiple={false}
+                            initialUrls={slide.image ? [slide.image] : []}
+                            onUploadComplete={(urls) => {
+                              const next = [...configForm.heroSlides];
+                              next[index] = { ...next[index], image: urls[0] || '' };
+                              setConfigForm((prev) => ({ ...prev, heroSlides: next }));
+                            }}
+                          />
                           <input
                             required
                             type="url"
@@ -1175,6 +1252,8 @@ export function AdminDashboardClient() {
                               next[index] = { ...next[index], image: e.target.value };
                               setConfigForm((prev) => ({ ...prev, heroSlides: next }));
                             }}
+                            placeholder="Or paste image URL here..."
+                            style={{ marginTop: '0.5rem', fontSize: '0.8rem' }}
                           />
                         </label>
                       </div>
