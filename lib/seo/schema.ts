@@ -1,7 +1,7 @@
-import { businessInfo } from '@/lib/config';
+import { businessInfo, socialLinks } from '@/lib/config';
 import { ProductCategory } from '@/lib/types/entities';
 
-const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://fotopalace.in';
 
 export function localBusinessSchema() {
   return {
@@ -13,16 +13,26 @@ export function localBusinessSchema() {
     telephone: businessInfo.phones,
     address: {
       '@type': 'PostalAddress',
-      streetAddress: businessInfo.address,
-      addressLocality: 'Vengavasal',
-      addressRegion: 'Tamil Nadu',
+      streetAddress: 'Gar-Ali, Near Eleye Cinema',
+      addressLocality: 'Jorhat',
+      addressRegion: 'Assam',
+      postalCode: '785001',
       addressCountry: 'IN'
     },
-    openingHours: 'Mo-Su 10:00-21:00',
-    image:
-      'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80',
+    geo: {
+      '@type': 'GeoCoordinates',
+      latitude: '26.7509',
+      longitude: '94.2037'
+    },
+    openingHours: 'Mo-Sa 10:00-21:00',
+    image: [
+      'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80'
+    ],
     url: baseUrl,
-    sameAs: []
+    sameAs: [
+      socialLinks.instagram,
+      socialLinks.facebook
+    ]
   };
 }
 

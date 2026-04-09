@@ -3,7 +3,7 @@ import { AboutPageClient } from '@/components/pages/AboutPageClient';
 
 export const metadata = pageMetadata({
   title: 'About Foto Palace',
-  description: 'Foto Palace is your trusted local tech partner in Vengavasal.',
+  description: 'Foto Palace is your trusted local tech partner in Jorhat.',
   canonical: '/about'
 });
 

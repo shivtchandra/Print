@@ -31,7 +31,7 @@ export function ContactActions() {
         </TrackedAnchor>
 
         <TrackedAnchor
-          href="https://maps.google.com/?q=Gar-Ali+near+Eleye+Cinema,+Vengavasal,+Tamil+Nadu"
+          href="https://maps.google.com/?q=Gar-Ali+near+Eleye+Cinema,+Jorhat,+Tamil+Nadu"
           target="_blank"
           rel="noopener noreferrer"
           className="secondary-btn"

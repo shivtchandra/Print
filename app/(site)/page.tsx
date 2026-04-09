@@ -11,8 +11,8 @@ import { pageMetadata } from '@/lib/seo/metadata';
 import { getStorefrontProducts, getStorefrontTestimonials } from '@/lib/data/storefront';
 
 export const metadata = pageMetadata({
-  title: 'No 1 Tech Store in Vengavasal',
-  description: 'Foto Palace offers laptops, gaming desktops, printers, CCTV, and IT accessories in Vengavasal.',
+  title: 'No 1 Tech Store in Jorhat',
+  description: 'Foto Palace offers laptops, gaming desktops, printers, CCTV, and IT accessories in Jorhat.',
   canonical: '/'
 });
 

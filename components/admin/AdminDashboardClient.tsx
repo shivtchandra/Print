@@ -90,7 +90,7 @@ const defaultConfigForm: ConfigForm = {
   aboutPage: {
     heroTitle: 'About Foto Palace',
     introParagraphs: [
-      'Foto Palace is your trusted local tech partner in Vengavasal. We are known for reliable product recommendations, honest pricing, and quick support.',
+      'Foto Palace is your trusted local tech partner in Jorhat. We are known for reliable product recommendations, honest pricing, and quick support.',
       'From laptops and gaming desktops to printers, CCTV systems, custom assembled desktops, and IT accessories, we help individuals and businesses choose the right technology with confidence.',
       'We do PC customization end-to-end, and we are the best at tailoring builds to your requirements. Choose the right options and you will always get the best price for your setup.'
     ],
@@ -1009,7 +1009,7 @@ export function AdminDashboardClient() {
                   <div className="admin-item-header">
                     <h3>{item.customerName}</h3>
                     <div className="badge-row">
-                      <span className="badge">{item.location || 'Vengavasal'}</span>
+                      <span className="badge">{item.location || 'Jorhat'}</span>
                       <span className={`status-badge ${item.isPublished ? 'published' : 'hidden'}`}>
                         {item.isPublished ? 'Published' : 'Hidden'}
                       </span>

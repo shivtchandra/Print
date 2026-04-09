@@ -12,7 +12,7 @@ export function DealsWithHighlights() {
       <div className="container">
         <div className="section-head">
           <h2>Deals With</h2>
-          <p>One-stop destination for complete tech solutions in Vengavasal.</p>
+          <p>One-stop destination for complete tech solutions in Jorhat.</p>
         </div>
         <div className="highlight-grid">
           {highlights.map((item) => (

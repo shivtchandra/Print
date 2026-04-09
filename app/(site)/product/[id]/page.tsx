@@ -54,7 +54,7 @@ export async function generateMetadata({ params }: ProductPageProps) {
 
   return pageMetadata({
     title: `${product.title} | Foto Palace`,
-    description: product.description || `Enquire about ${product.title} from ${product.brand} at Foto Palace Vengavasal.`,
+    description: product.description || `Enquire about ${product.title} from ${product.brand} at Foto Palace Jorhat.`,
     canonical: `/product/${product.id}`
   });
 }
@@ -161,7 +161,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
             <div className="buy-box shadow-lg">
               <div className="price-tag">{product.priceRange}</div>
               <div className="delivery-info">
-                <strong>Free Delivery</strong> available for local orders in Vengavasal.
+                <strong>Free Delivery</strong> available for local orders in Jorhat.
               </div>
               <div className="stock-status">In Stock</div>
               

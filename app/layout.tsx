@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 
 import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics';
+import { MetaPixel } from '@/components/analytics/MetaPixel';
 import { ScrollReveal } from '@/components/layout/ScrollReveal';
 import { siteMetadata } from '@/lib/seo/metadata';
 import { localBusinessSchema } from '@/lib/seo/schema';
@@ -21,6 +22,7 @@ export default function RootLayout({
       <body>
         <ScrollReveal />
         <GoogleAnalytics />
+        <MetaPixel />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

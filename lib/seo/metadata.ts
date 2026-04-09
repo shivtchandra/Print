@@ -10,18 +10,20 @@ export const siteMetadata: Metadata = {
     default: `${businessInfo.name} | ${businessInfo.tagline}`,
     template: `%s | ${businessInfo.name}`
   },
-  description: `${businessInfo.name} in Vengavasal for laptops, gaming desktops, printers, CCTV, assembled desktops, and IT accessories.`,
+  description: `${businessInfo.name} in Jorhat, Assam — Authorized dealer for high-performance Laptops, Custom Gaming PCs, HP/Canon Printers, and Hikvision CCTV security systems. Expert computer repair and IT support since 2010.`,
   keywords: seoKeywords,
   openGraph: {
     type: 'website',
     siteName: businessInfo.name,
-    title: `${businessInfo.name} - ${businessInfo.tagline}`,
-    description: businessInfo.description
+    title: `${businessInfo.name} | Premium Tech & IT Solutions in Jorhat`,
+    description: `Leading provider of Laptops, Gaming PCs, and Security Systems in Jorhat, Assam. Quality products from Dell, HP, ASUS, and Hikvision.`,
+    locale: 'en_IN',
   },
   twitter: {
     card: 'summary_large_image',
-    title: `${businessInfo.name} - ${businessInfo.tagline}`,
-    description: businessInfo.description
+    title: `${businessInfo.name} | Best Tech Store in Jorhat`,
+    description: `Expert custom PCs, branded laptops, and CCTV installation services in Jorhat. Visit Foto Palace today for the best deals.`,
+    creator: '@fotopalace_jrt'
   },
   alternates: {
     canonical: '/'

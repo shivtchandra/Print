@@ -3,7 +3,7 @@ import Link from 'next/link';
 export function FaqSection() {
   const faqs = [
     {
-      q: "Do you offer on-site laptop repair in Vengavasal?",
+      q: "Do you offer on-site laptop repair in Jorhat?",
       a: "Yes! We provide on-site diagnostics and minor repairs. For major motherboard or hardware work, we may safely transport your device to our service center."
     },
     {

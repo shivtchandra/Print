@@ -82,9 +82,9 @@ export function HeroCarousel({ products }: HeroCarouselProps) {
       <div className="hero-split hero-split-desktop">
         {/* LEFT: Copy panel */}
         <div className="hero-split-copy">
-          <span className="hero-badge">Foto Palace · Vengavasal</span>
+          <span className="hero-badge">Foto Palace · Jorhat</span>
           <h1 className="hero-split-title" key={activeSlide}>
-            {currentSlide?.title ?? 'No 1 Tech Store in Vengavasal'}
+            {currentSlide?.title ?? 'No 1 Tech Store in Jorhat'}
           </h1>
           <p className="hero-split-sub" key={`sub-${activeSlide}`}>
             {currentSlide?.subtitle ?? 'Best Deals on Laptops, Gaming PCs, Printers & More'}

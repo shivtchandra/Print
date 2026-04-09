@@ -9,8 +9,8 @@ export const categoryMeta: Record<ProductCategory, CategoryMeta> = {
     heroSubtitle: 'Gaming, business, and budget laptops with reliable local support.',
     heroImage:
       'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=1600&q=80',
-    seoTitle: 'Laptops Vengavasal | Foto Palace',
-    seoDescription: 'Shop Dell, HP, ASUS laptops at Foto Palace, Vengavasal.'
+    seoTitle: 'Laptops Jorhat | Foto Palace',
+    seoDescription: 'Shop Dell, HP, ASUS laptops at Foto Palace, Jorhat.'
   },
   'gaming-desktops': {
     slug: 'gaming-desktops',
@@ -20,7 +20,7 @@ export const categoryMeta: Record<ProductCategory, CategoryMeta> = {
     heroSubtitle: 'High-FPS setups, RGB aesthetics, and custom upgrades for every gamer.',
     heroImage:
       'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?auto=format&fit=crop&w=1600&q=80',
-    seoTitle: 'Gaming Desktop Store Vengavasal | Foto Palace',
+    seoTitle: 'Gaming Desktop Store Jorhat | Foto Palace',
     seoDescription: 'Explore pre-built and custom gaming desktops with upgrade options.'
   },
   printers: {
@@ -31,7 +31,7 @@ export const categoryMeta: Record<ProductCategory, CategoryMeta> = {
     heroSubtitle: 'Home, office, and bulk printing solutions with expert recommendations.',
     heroImage:
       'https://images.unsplash.com/photo-1612815154858-60aa4c59eaa6?auto=format&fit=crop&w=1600&q=80',
-    seoTitle: 'Printer Shop Vengavasal | Foto Palace',
+    seoTitle: 'Printer Shop Jorhat | Foto Palace',
     seoDescription: 'Inkjet, laser, and wireless multifunction printers from top brands.'
   },
   cctv: {
@@ -42,7 +42,7 @@ export const categoryMeta: Record<ProductCategory, CategoryMeta> = {
     heroSubtitle: 'Smart surveillance systems with professional installation support.',
     heroImage:
       'https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&w=1600&q=80',
-    seoTitle: 'CCTV Installation Vengavasal | Foto Palace',
+    seoTitle: 'CCTV Installation Jorhat | Foto Palace',
     seoDescription: 'Wireless IP cameras, DVR kits, and night-vision solutions for home and office.'
   },
   'assembled-desktops': {
@@ -53,7 +53,7 @@ export const categoryMeta: Record<ProductCategory, CategoryMeta> = {
     heroSubtitle: 'Component-level customization, testing, and in-store assembly by experts.',
     heroImage:
       'https://images.unsplash.com/photo-1587202372634-32705e3bf49c?auto=format&fit=crop&w=1600&q=80',
-    seoTitle: 'Assembled Desktop Vengavasal | Foto Palace',
+    seoTitle: 'Assembled Desktop Jorhat | Foto Palace',
     seoDescription: 'Get performance desktops assembled to your exact budget and needs.'
   },
   accessories: {
@@ -64,7 +64,7 @@ export const categoryMeta: Record<ProductCategory, CategoryMeta> = {
     heroSubtitle: 'Peripherals, cables, monitors, power backup, and more for every setup.',
     heroImage:
       'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?auto=format&fit=crop&w=1600&q=80',
-    seoTitle: 'IT Accessories Vengavasal | Foto Palace',
+    seoTitle: 'IT Accessories Jorhat | Foto Palace',
     seoDescription: 'Find keyboards, mice, headphones, UPS, and essential accessories.'
   }
 };
@@ -72,7 +72,7 @@ export const categoryMeta: Record<ProductCategory, CategoryMeta> = {
 export const heroSlides = [
   {
     title: 'Foto Palace - No 1 Tech Store',
-    subtitle: 'Best Deals on Tech in Vengavasal',
+    subtitle: 'Best Deals on Tech in Jorhat',
     image:
       'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1800&q=80'
   },
@@ -270,9 +270,9 @@ export const defaultProducts: Product[] = [
 export const defaultTestimonials: Testimonial[] = [
   {
     customerName: 'Rahul K.',
-    quote: 'Best place in Vengavasal for gaming and laptop deals. Excellent service.',
+    quote: 'Best place in Jorhat for gaming and laptop deals. Excellent service.',
     rating: 5,
-    location: 'Vengavasal',
+    location: 'Jorhat',
     isPublished: true,
     createdAt: new Date().toISOString()
   },

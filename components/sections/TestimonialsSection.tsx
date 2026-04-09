@@ -38,7 +38,7 @@ export function TestimonialsSection({ testimonials }: TestimonialsSectionProps) 
                 </div>
                 <div>
                   <h4>{testimonial.customerName}</h4>
-                  <small>{testimonial.location || 'Vengavasal'}</small>
+                  <small>{testimonial.location || 'Jorhat'}</small>
                 </div>
               </div>
             </article>

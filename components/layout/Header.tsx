@@ -93,7 +93,7 @@ export function Header() {
           <div className="desktop-header-row">
             <div>
               <Link href="/" className="brand-logo">Foto Palace</Link>
-              <p className="brand-subtitle">No 1 Tech Store in Vengavasal</p>
+              <p className="brand-subtitle">No 1 Tech Store in Jorhat</p>
             </div>
 
             <nav className="desktop-nav" aria-label="Main Navigation">
