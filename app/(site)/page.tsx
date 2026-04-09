@@ -24,7 +24,7 @@ export default async function HomePage() {
 
   return (
     <div className="home-page">
-      <HeroCarousel products={products} />
+      <HeroCarousel />
       <FeaturedDeals />
       <FeaturedProductCards products={products} />
       <ServicesDetailed />

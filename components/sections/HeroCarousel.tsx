@@ -1,22 +1,14 @@
 'use client';
 
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
 import { StorefrontImage } from '@/components/media/StorefrontImage';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-
 import { useConfig } from '@/components/providers/ConfigProvider';
-import { Product } from '@/lib/types/entities';
 
-interface HeroCarouselProps {
-  products: Product[];
-}
-
-export function HeroCarousel({ products }: HeroCarouselProps) {
-  const { heroSlides, mobileHeroProductIds } = useConfig();
+export function HeroCarousel() {
+  const { heroSlides } = useConfig();
   const [activeSlide, setActiveSlide] = useState(0);
-  const [mobileIndex, setMobileIndex] = useState(0);
-  const mobileStripRef = useRef<HTMLDivElement>(null);
 
   // Desktop: image slide auto-rotation
   useEffect(() => {
@@ -27,59 +19,12 @@ export function HeroCarousel({ products }: HeroCarouselProps) {
     return () => clearInterval(timer);
   }, [heroSlides.length]);
 
-  // Mobile hero products: use admin-selected IDs, fallback to featured
-  const mobileProducts = useMemo(() => {
-    const active = products.filter((p) => p.status === 'active' && p.id);
-    if (mobileHeroProductIds && mobileHeroProductIds.length > 0) {
-      const byId = new Map(active.map((p) => [p.id, p]));
-      const selected = mobileHeroProductIds
-        .map((id) => byId.get(id))
-        .filter(Boolean) as Product[];
-      if (selected.length > 0) return selected;
-    }
-    const featured = active.filter((p) => p.isFeatured);
-    return featured.length > 0 ? featured.slice(0, 6) : active.slice(0, 6);
-  }, [products, mobileHeroProductIds]);
-
-  // Scroll-snap observer for mobile index tracking
-  useEffect(() => {
-    const root = mobileStripRef.current;
-    if (!root || mobileProducts.length === 0) return;
-
-    const items = Array.from(root.children) as HTMLElement[];
-    if (items.length === 0) return;
-
-    const io = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((e) => e.isIntersecting && e.intersectionRatio >= 0.5)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-        if (!visible) return;
-        const idx = items.indexOf(visible.target as HTMLElement);
-        if (idx >= 0) setMobileIndex(idx);
-      },
-      { root, threshold: [0.5, 0.8] }
-    );
-
-    items.forEach((el) => io.observe(el));
-    return () => io.disconnect();
-  }, [mobileProducts]);
-
-  const scrollToSlide = useCallback((index: number) => {
-    const root = mobileStripRef.current;
-    const card = root?.children[index] as HTMLElement | undefined;
-    if (!root || !card) return;
-    const left = root.scrollLeft + (card.getBoundingClientRect().left - root.getBoundingClientRect().left);
-    root.scrollTo({ left: Math.max(0, left), behavior: 'smooth' });
-    setMobileIndex(index);
-  }, []);
-
   const currentSlide = heroSlides[activeSlide];
 
   return (
     <section className="hero-carousel">
-      {/* ===== DESKTOP: Split-panel hero (hidden on mobile) ===== */}
-      <div className="hero-split hero-split-desktop">
+      {/* ===== HERO SLIDES (Visible on all devices) ===== */}
+      <div className="hero-split">
         {/* LEFT: Copy panel */}
         <div className="hero-split-copy">
           <span className="hero-badge">Foto Palace · Jorhat</span>
@@ -127,7 +72,7 @@ export function HeroCarousel({ products }: HeroCarouselProps) {
                 alt={slide.title}
                 fill
                 priority={index === 0}
-                sizes="55vw"
+                sizes="(max-width: 899px) 100vw, 55vw"
                 className="hero-split-img"
               />
             </div>
@@ -136,55 +81,6 @@ export function HeroCarousel({ products }: HeroCarouselProps) {
           <div className="hero-split-edge" />
         </div>
       </div>
-
-      {/* ===== MOBILE: Product card carousel (hidden on desktop) ===== */}
-      {mobileProducts.length > 0 && (
-        <div className="mobile-hero-products">
-          <div
-            ref={mobileStripRef}
-            className="mobile-hero-strip"
-            aria-label="Featured products"
-          >
-            {mobileProducts.map((product, idx) => (
-              <Link
-                key={`${product.id}-${idx}`}
-                href={`/product/${product.id}`}
-                className="mobile-hero-card"
-              >
-                <div className="mobile-hero-card-image">
-                  <StorefrontImage
-                    src={product.images[0]}
-                    alt={product.title}
-                    fill
-                    sizes="85vw"
-                    priority={idx === 0}
-                    className="mobile-hero-card-img"
-                  />
-                </div>
-                <div className="mobile-hero-card-info">
-                  <h3>{product.title}</h3>
-                  <p className="mobile-hero-card-price">{product.priceRange}</p>
-                </div>
-              </Link>
-            ))}
-          </div>
-
-          {/* Simple dot indicators */}
-          {mobileProducts.length > 1 && (
-            <div className="mobile-hero-dots">
-              {mobileProducts.map((_, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  className={`mobile-hero-dot ${idx === mobileIndex ? 'active' : ''}`}
-                  onClick={() => scrollToSlide(idx)}
-                  aria-label={`Product ${idx + 1}`}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-      )}
     </section>
   );
 }

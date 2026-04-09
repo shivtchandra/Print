@@ -1157,8 +1157,15 @@ export function AdminDashboardClient() {
                       }
                     />
                   </label>
+                </div>
+              </div>
+
+              <div className="form-section mt-6">
+                <h3>Announcement Bar</h3>
+                <p className="muted-text mb-4">This text appears in the rolling orange banner at the very top of the site.</p>
+                <div className="form-grid-inner">
                   <label className="full-width">
-                    Ad Banner Text (Header Announcement)
+                    Announcement Text
                     <input
                       value={configForm.businessInfo.adBannerText || ''}
                       onChange={(e) =>
@@ -1167,7 +1174,7 @@ export function AdminDashboardClient() {
                           businessInfo: { ...prev.businessInfo, adBannerText: e.target.value }
                         }))
                       }
-                      placeholder="e.g. Free delivery on orders above ₹5,000"
+                      placeholder="e.g. Big Summer Sale! Up to 40% off on all Gaming Laptops"
                     />
                   </label>
                 </div>

@@ -56,12 +56,26 @@ export function Header() {
     <>
       {/* ===== ANNOUNCEMENT BAR ===== */}
       <div className="announcement-bar">
-        <div className="container announcement-inner">
-          <span>{businessInfo.adBannerText || 'Free delivery on orders above ₹5,000'}</span>
-          <span className="announcement-divider">|</span>
-          <a href={`tel:${businessInfo.phones[0]}`}>
-            Call {businessInfo.phones[0]} for instant quotes
-          </a>
+        <div className="marquee-container">
+          <div className="marquee-content">
+            <span className="marquee-item">
+              {businessInfo.adBannerText || 'Free delivery on orders above ₹5,000'}
+            </span>
+            <span className="marquee-item announcement-divider">|</span>
+            <span className="marquee-item">
+              Call {businessInfo.phones[0]} for instant quotes
+            </span>
+            <span className="marquee-item announcement-divider">|</span>
+            {/* Repeat for seamless loop */}
+            <span className="marquee-item">
+              {businessInfo.adBannerText || 'Free delivery on orders above ₹5,000'}
+            </span>
+            <span className="marquee-item announcement-divider">|</span>
+            <span className="marquee-item">
+              Call {businessInfo.phones[0]} for instant quotes
+            </span>
+            <span className="marquee-item announcement-divider">|</span>
+          </div>
         </div>
       </div>
 
@@ -151,55 +165,54 @@ export function Header() {
           </div>
         </div>
 
-        {/* ===== MOBILE SLIDE-IN DRAWER ===== */}
-        <div className={`mobile-nav-backdrop ${isMenuOpen ? 'visible' : ''}`} onClick={closeMenu} />
-        <nav className={`mobile-nav-drawer ${isMenuOpen ? 'open' : ''}`} aria-label="Mobile Navigation">
-          <div className="mobile-nav-header">
-            <Link href="/" className="brand-logo" onClick={closeMenu}>Foto Palace</Link>
-            <button className="mobile-nav-close" onClick={closeMenu} aria-label="Close menu">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                <path d="M18 6 6 18M6 6l12 12"/>
-              </svg>
-            </button>
-          </div>
-
-          <div className="mobile-nav-categories">
-            {productCategories.map((key) => {
-              const meta = categoryMeta[key];
-              return (
-                <Link key={meta.slug} href={`/${meta.slug}`} className="mobile-nav-cat-link" onClick={closeMenu}>
-                  {meta.label}
-                </Link>
-              );
-            })}
-          </div>
-
-          <div className="mobile-nav-links">
-            {navItems.filter(i => i.type === 'link').map((item) => (
-              <Link key={(item as { href: string }).href} href={(item as { href: string }).href} className="mobile-nav-link" onClick={closeMenu}>
-                {item.label}
-              </Link>
-            ))}
-          </div>
-
-          <div className="mobile-nav-footer">
-            <a
-              href={`https://wa.me/${businessInfo.whatsapp}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="primary-btn mobile-nav-cta"
-              onClick={closeMenu}
-            >
-              Get a Quote on WhatsApp
-            </a>
-            <a href={`tel:${businessInfo.phones[0]}`} className="mobile-nav-phone">
-              📞 {businessInfo.phones[0]}
-            </a>
-          </div>
-        </nav>
-
-
       </header>
+      
+      {/* ===== MOBILE SLIDE-IN DRAWER (Moved outside header to fix z-index stacking) ===== */}
+      <div className={`mobile-nav-backdrop ${isMenuOpen ? 'visible' : ''}`} onClick={closeMenu} />
+      <nav className={`mobile-nav-drawer ${isMenuOpen ? 'open' : ''}`} aria-label="Mobile Navigation">
+        <div className="mobile-nav-header">
+          <Link href="/" className="brand-logo" onClick={closeMenu}>Foto Palace</Link>
+          <button className="mobile-nav-close" onClick={closeMenu} aria-label="Close menu">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+              <path d="M18 6 6 18M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+
+        <div className="mobile-nav-categories">
+          {productCategories.map((key) => {
+            const meta = categoryMeta[key];
+            return (
+              <Link key={meta.slug} href={`/${meta.slug}`} className="mobile-nav-cat-link" onClick={closeMenu}>
+                {meta.label}
+              </Link>
+            );
+          })}
+        </div>
+
+        <div className="mobile-nav-links">
+          {navItems.filter(i => i.type === 'link').map((item) => (
+            <Link key={(item as { href: string }).href} href={(item as { href: string }).href} className="mobile-nav-link" onClick={closeMenu}>
+              {item.label}
+            </Link>
+          ))}
+        </div>
+
+        <div className="mobile-nav-footer">
+          <a
+            href={`https://wa.me/${businessInfo.whatsapp}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="primary-btn mobile-nav-cta"
+            onClick={closeMenu}
+          >
+            Get a Quote on WhatsApp
+          </a>
+          <a href={`tel:${businessInfo.phones[0]}`} className="mobile-nav-phone">
+            📞 {businessInfo.phones[0]}
+          </a>
+        </div>
+      </nav>
     </>
   );
 }
