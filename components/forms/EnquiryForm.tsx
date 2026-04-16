@@ -2,6 +2,7 @@
 
 import { FormEvent, useMemo, useState } from 'react';
 
+import { trackGenerateLead } from '@/lib/analytics/events';
 import { ProductCategory } from '@/lib/types/entities';
 
 interface EnquiryFormProps {
@@ -25,12 +26,6 @@ const initialState: FormState = {
   message: '',
   preferredContact: 'phone'
 };
-
-declare global {
-  interface Window {
-    gtag?: (...args: unknown[]) => void;
-  }
-}
 
 export function EnquiryForm({ category, sourcePage, title = 'Get a Quote' }: EnquiryFormProps) {
   const [form, setForm] = useState<FormState>(initialState);
@@ -69,12 +64,7 @@ export function EnquiryForm({ category, sourcePage, title = 'Get a Quote' }: Enq
         return;
       }
 
-      if (typeof window !== 'undefined' && window.gtag) {
-        window.gtag('event', 'form_submit', {
-          category,
-          sourcePage
-        });
-      }
+      trackGenerateLead({ category, source_page: sourcePage });
 
       setStatus('Thank you. We will contact you shortly.');
       setForm(initialState);

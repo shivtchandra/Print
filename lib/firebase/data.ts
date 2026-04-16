@@ -14,12 +14,13 @@ import {
 
 import { localId, readLocalAdminStore, writeLocalAdminStore } from '@/lib/data/local-admin-store';
 import { clientDb } from '@/lib/firebase/client';
-import { Lead, Product, SiteConfig, Testimonial } from '@/lib/types/entities';
+import { BlogPost, Lead, Product, SiteConfig, Testimonial } from '@/lib/types/entities';
 
 const COLLECTIONS = {
   leads: 'leads',
   products: 'products',
   testimonials: 'testimonials',
+  blogs: 'blogs',
   config: 'siteConfig'
 } as const;
 
@@ -195,6 +196,71 @@ export async function deleteTestimonial(id: string) {
     return;
   }
   await deleteDoc(doc(db, COLLECTIONS.testimonials, id));
+}
+
+export async function listBlogs() {
+  const db = clientDb;
+  if (!db) {
+    const store = await readLocalAdminStore();
+    return store.blogs.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
+  }
+
+  const q = query(collection(db, COLLECTIONS.blogs), orderBy('createdAt', 'desc'));
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map((d) => normalizeDoc<BlogPost>(d.id, d.data() as Omit<BlogPost, 'id'>));
+}
+
+export async function getBlog(id: string) {
+  const db = clientDb;
+  if (!db) {
+    const store = await readLocalAdminStore();
+    return store.blogs.find((b) => b.id === id) || null;
+  }
+
+  const docRef = doc(db, COLLECTIONS.blogs, id);
+  const docSnap = await getDoc(docRef);
+  if (!docSnap.exists()) return null;
+  return normalizeDoc<BlogPost>(docSnap.id, docSnap.data() as Omit<BlogPost, 'id'>);
+}
+
+export async function createBlog(blog: BlogPost) {
+  const db = clientDb;
+  if (!db) {
+    const store = await readLocalAdminStore();
+    const savedBlog: BlogPost = {
+      ...blog,
+      id: localId('blog'),
+      createdAt: blog.createdAt || new Date().toISOString()
+    };
+    store.blogs = [savedBlog, ...store.blogs];
+    await writeLocalAdminStore(store);
+    return savedBlog;
+  }
+
+  const ref = await addDoc(collection(db, COLLECTIONS.blogs), blog);
+  return { id: ref.id, ...blog };
+}
+
+export async function updateBlog(id: string, blog: Partial<BlogPost>) {
+  const db = clientDb;
+  if (!db) {
+    const store = await readLocalAdminStore();
+    store.blogs = store.blogs.map((item) => (item.id === id ? { ...item, ...blog } : item));
+    await writeLocalAdminStore(store);
+    return;
+  }
+  await setDoc(doc(db, COLLECTIONS.blogs, id), blog, { merge: true });
+}
+
+export async function deleteBlog(id: string) {
+  const db = clientDb;
+  if (!db) {
+    const store = await readLocalAdminStore();
+    store.blogs = store.blogs.filter((item) => item.id !== id);
+    await writeLocalAdminStore(store);
+    return;
+  }
+  await deleteDoc(doc(db, COLLECTIONS.blogs, id));
 }
 
 export async function getSiteConfig() {

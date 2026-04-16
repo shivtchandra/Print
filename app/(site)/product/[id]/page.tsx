@@ -1,9 +1,9 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 
-import { getStorefrontProduct } from '@/lib/data/storefront';
-import { getStorefrontConfig } from '@/lib/data/storefront';
+import { getStorefrontConfig, getStorefrontProduct } from '@/lib/data/storefront';
 import { pageMetadata } from '@/lib/seo/metadata';
+import { buildProductEnquiryUrl } from '@/lib/whatsapp';
 import { EnquiryForm } from '@/components/forms/EnquiryForm';
 import { LaptopCustomizationPanel } from '@/components/product/LaptopCustomizationPanel';
 import { ProductGallery } from '@/components/product/ProductGallery';
@@ -52,8 +52,10 @@ export async function generateMetadata({ params }: ProductPageProps) {
   if (!product) return {};
 
   return pageMetadata({
-    title: `${product.title} | Foto Palace`,
-    description: product.description || `Enquire about ${product.title} from ${product.brand} at Foto Palace Jorhat.`,
+    title: `${product.title} | Foto Palace Jorhat`,
+    description:
+      product.description ||
+      `${product.title} by ${product.brand} — price ${product.priceRange}. Enquire at Foto Palace, Gar-Ali, Jorhat. WhatsApp 9435051891.`,
     canonical: `/product/${product.id}`
   });
 }
@@ -69,6 +71,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
   const laptopCustomization = config.laptopCustomization?.categories ?? [];
   const basePrice = parsePriceRangeToBase(product.priceRange);
+  const whatsappHref = buildProductEnquiryUrl(product.title, product.priceRange);
 
   return (
     <main className="product-page-wrapper">
@@ -168,7 +171,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 <a href="#enquiry" className="primary-btn buy-now-btn full-width">
                   Enquire Now
                 </a>
-                <a href={`https://wa.me/919435051581?text=Hi, I am interested in ${product.title}`} className="whatsapp-btn full-width">
+                <a href={whatsappHref} className="whatsapp-btn full-width" target="_blank" rel="noopener noreferrer">
                   Contact on WhatsApp
                 </a>
               </div>

@@ -1,4 +1,18 @@
 import type { Metadata } from 'next';
+import { Outfit, IBM_Plex_Mono } from 'next/font/google';
+
+const outfit = Outfit({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-outfit',
+});
+
+const ibmPlexMono = IBM_Plex_Mono({
+  subsets: ['latin'],
+  weight: ['400', '500', '600'],
+  display: 'swap',
+  variable: '--font-ibm-plex-mono',
+});
 
 import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics';
 import { MetaPixel } from '@/components/analytics/MetaPixel';
@@ -18,8 +32,8 @@ export default function RootLayout({
   const schema = localBusinessSchema();
 
   return (
-    <html lang="en">
-      <body>
+    <html lang="en" className={`${outfit.variable} ${ibmPlexMono.variable}`}>
+      <body className={ibmPlexMono.className}>
         <ScrollReveal />
         <GoogleAnalytics />
         <MetaPixel />

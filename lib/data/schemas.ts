@@ -61,6 +61,13 @@ export const testimonialSchema = z.object({
   isPublished: z.boolean()
 });
 
+export const blogPostSchema = z.object({
+  title: z.string().min(3).max(180),
+  content: z.string().min(30).max(20000),
+  images: z.array(z.string().url()).default([]),
+  isPublished: z.boolean()
+});
+
 export const heroSlideSchema = z.object({
   title: z.string().min(2).max(120),
   subtitle: z.string().min(2).max(400),

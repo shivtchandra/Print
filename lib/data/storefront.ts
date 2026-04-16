@@ -1,15 +1,15 @@
 import { businessInfo } from '@/lib/config';
-import { categoryMeta, defaultProducts, defaultTestimonials, heroSlides } from '@/lib/data/catalog';
-import { getProduct, getSiteConfig, listProducts, listTestimonials } from '@/lib/firebase/data';
-import { AboutPageContent, LaptopCustomizationConfig, ProductCategory } from '@/lib/types/entities';
+import { categoryMeta } from '@/lib/data/catalog';
+import { getBlog, getProduct, getSiteConfig, listBlogs, listProducts, listTestimonials } from '@/lib/firebase/data';
+import { AboutPageContent, BlogPost, LaptopCustomizationConfig, ProductCategory } from '@/lib/types/entities';
 
-export const revalidate = 3600; // Cache for 1 hour
+export const revalidate = 3600;
 
 export async function getStorefrontProduct(id: string) {
   try {
     return await getProduct(id);
   } catch {
-    return defaultProducts.find((p) => p.id === id) || null;
+    return null;
   }
 }
 
@@ -21,8 +21,7 @@ export async function getStorefrontProducts(category?: ProductCategory) {
     if (!category) return filtered;
     return filtered.filter((product) => product.category === category);
   } catch {
-    if (!category) return defaultProducts;
-    return defaultProducts.filter((product) => product.category === category);
+    return [];
   }
 }
 
@@ -31,7 +30,26 @@ export async function getStorefrontTestimonials() {
     const testimonials = await listTestimonials();
     return testimonials.filter((item) => item.isPublished);
   } catch {
-    return defaultTestimonials.filter((item) => item.isPublished);
+    return [];
+  }
+}
+
+export async function getStorefrontBlogs() {
+  try {
+    const blogs = await listBlogs();
+    return blogs.filter((item) => item.isPublished);
+  } catch {
+    return [];
+  }
+}
+
+export async function getStorefrontBlog(id: string): Promise<BlogPost | null> {
+  try {
+    const blog = await getBlog(id);
+    if (!blog || !blog.isPublished) return null;
+    return blog;
+  } catch {
+    return null;
   }
 }
 
@@ -44,7 +62,8 @@ export async function getStorefrontConfig() {
     const config = await getSiteConfig();
     return {
       businessInfo: config?.businessInfo || businessInfo,
-      heroSlides: config?.heroSlides && config.heroSlides.length > 0 ? config.heroSlides : heroSlides,
+      heroSlides:
+        config?.heroSlides && config.heroSlides.length > 0 ? config.heroSlides.filter((s) => s.image?.trim()) : [],
       aboutPage: config?.aboutPage || defaultAboutPage,
       laptopCustomization: config?.laptopCustomization || defaultLaptopCustomization,
       mobileHeroProductIds: config?.mobileHeroProductIds ?? []
@@ -52,7 +71,7 @@ export async function getStorefrontConfig() {
   } catch {
     return {
       businessInfo,
-      heroSlides,
+      heroSlides: [],
       aboutPage: defaultAboutPage,
       laptopCustomization: defaultLaptopCustomization,
       mobileHeroProductIds: []
@@ -60,12 +79,11 @@ export async function getStorefrontConfig() {
   }
 }
 
+/** Minimal placeholder until Admin → Settings is filled with your real copy. */
 const defaultAboutPage: AboutPageContent = {
   heroTitle: 'About Foto Palace',
   introParagraphs: [
-    'Foto Palace is your trusted local tech partner in Jorhat. We are known for reliable product recommendations, honest pricing, and quick support.',
-    'From laptops and gaming desktops to printers, CCTV systems, custom assembled desktops, and IT accessories, we help individuals and businesses choose the right technology with confidence.',
-    'We do PC customization end-to-end, and we are the best at tailoring builds to your requirements. Choose the right options and you will always get the best price for your setup.'
+    'Add your store story, team, and photos in the admin dashboard under Site configuration → About page.'
   ],
   whyTitle: 'Why Customers Choose Us',
   whyBullets: [

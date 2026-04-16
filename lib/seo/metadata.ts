@@ -1,33 +1,43 @@
 import { Metadata } from 'next';
 
 import { businessInfo, seoKeywords } from '@/lib/config';
+import { getSiteUrl } from '@/lib/site';
 
-const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+const baseUrl = getSiteUrl();
 
 export const siteMetadata: Metadata = {
   metadataBase: new URL(baseUrl),
   title: {
-    default: `${businessInfo.name} | ${businessInfo.tagline}`,
+    default: `${businessInfo.name} | Laptops, gaming PCs & CCTV in Jorhat`,
     template: `%s | ${businessInfo.name}`
   },
-  description: `${businessInfo.name} in Jorhat, Assam — Authorized dealer for high-performance Laptops, Custom Gaming PCs, HP/Canon Printers, and Hikvision CCTV security systems. Expert computer repair and IT support since 2010.`,
+  description:
+    "Foto Palace — Jorhat's top tech store for laptops, gaming PCs, printers, CCTV, and IT accessories. Visit us at Gar-Ali or WhatsApp 9435051891.",
   keywords: seoKeywords,
   openGraph: {
     type: 'website',
     siteName: businessInfo.name,
-    title: `${businessInfo.name} | Premium Tech & IT Solutions in Jorhat`,
-    description: `Leading provider of Laptops, Gaming PCs, and Security Systems in Jorhat, Assam. Quality products from Dell, HP, ASUS, and Hikvision.`,
-    locale: 'en_IN',
+    url: baseUrl,
+    title: `${businessInfo.name} | Premium tech in Jorhat, Assam`,
+    description: `Laptops, gaming desktops, printers, and CCTV from Gar-Ali, Jorhat. Call ${businessInfo.phones[0]}.`,
+    locale: 'en_IN'
   },
   twitter: {
     card: 'summary_large_image',
-    title: `${businessInfo.name} | Best Tech Store in Jorhat`,
-    description: `Expert custom PCs, branded laptops, and CCTV installation services in Jorhat. Visit Foto Palace today for the best deals.`,
+    title: `${businessInfo.name} | Jorhat tech store`,
+    description: `Gar-Ali, near Eleye Cinema — laptops, gaming PCs, printers, CCTV. ${businessInfo.phones[0]}.`,
     creator: '@fotopalace_jrt'
   },
   alternates: {
     canonical: '/'
-  }
+  },
+  ...(process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
+    ? {
+        verification: {
+          google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
+        }
+      }
+    : {})
 };
 
 export function pageMetadata({
@@ -51,7 +61,7 @@ export function pageMetadata({
     openGraph: {
       title,
       description,
-      url: canonical
+      url: `${baseUrl}${canonical === '/' ? '' : canonical}`
     }
   };
 }

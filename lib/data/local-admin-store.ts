@@ -2,13 +2,14 @@ import { mkdir, readFile, writeFile } from 'fs/promises';
 import path from 'path';
 
 import { businessInfo } from '@/lib/config';
-import { defaultProducts, defaultTestimonials, heroSlides } from '@/lib/data/catalog';
-import { Lead, Product, SiteConfig, Testimonial } from '@/lib/types/entities';
+import { heroSlides } from '@/lib/data/catalog';
+import { BlogPost, Lead, Product, SiteConfig, Testimonial } from '@/lib/types/entities';
 
 type LocalAdminStore = {
   leads: Lead[];
   products: Product[];
   testimonials: Testimonial[];
+  blogs: BlogPost[];
   siteConfig: SiteConfig;
 };
 
@@ -16,24 +17,17 @@ const storePath = path.join(process.cwd(), 'data', 'admin-store.json');
 
 const initialStore: LocalAdminStore = {
   leads: [],
-  products: defaultProducts.map((product, index) => ({
-    ...product,
-    id: product.id || `product-seed-${index + 1}`
-  })),
-  testimonials: defaultTestimonials.map((testimonial, index) => ({
-    ...testimonial,
-    id: testimonial.id || `testimonial-seed-${index + 1}`
-  })),
+  products: [],
+  testimonials: [],
+  blogs: [],
   siteConfig: {
     id: 'default',
     businessInfo,
-    heroSlides,
+    heroSlides: heroSlides.length ? heroSlides : [],
     aboutPage: {
       heroTitle: 'About Foto Palace',
       introParagraphs: [
-        'Foto Palace is your trusted local tech partner in Jorhat. We are known for reliable product recommendations, honest pricing, and quick support.',
-        'From laptops and gaming desktops to printers, CCTV systems, custom assembled desktops, and IT accessories, we help individuals and businesses choose the right technology with confidence.',
-        'We do PC customization end-to-end, and we are the best at tailoring builds to your requirements. Choose the right options and you will always get the best price for your setup.'
+        'Add your store story, team, and photos in the admin dashboard under Site configuration → About page.'
       ],
       whyTitle: 'Why Customers Choose Us',
       whyBullets: [
@@ -67,6 +61,7 @@ export async function readLocalAdminStore(): Promise<LocalAdminStore> {
       leads: parsed.leads || [],
       products: parsed.products || [],
       testimonials: parsed.testimonials || [],
+      blogs: parsed.blogs || [],
       siteConfig: parsed.siteConfig || initialStore.siteConfig
     };
   } catch {

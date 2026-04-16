@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from 'react';
 
+import { trackGenerateLead } from '@/lib/analytics/events';
 import { ProductCategory } from '@/lib/types/entities';
 
 const categories: ProductCategory[] = [
@@ -48,12 +49,7 @@ export function ContactForm() {
         return;
       }
 
-      if (typeof window !== 'undefined' && window.gtag) {
-        window.gtag('event', 'form_submit', {
-          category: form.category,
-          sourcePage: 'contact'
-        });
-      }
+      trackGenerateLead({ category: form.category, source_page: '/contact' });
 
       setStatus('Thanks for contacting Foto Palace. Our team will reach out soon.');
       setForm({

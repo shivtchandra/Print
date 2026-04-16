@@ -13,7 +13,7 @@ import {
 import { clientAuth, clientFirebaseReady } from '@/lib/firebase/client';
 import { toCsv } from '@/lib/utils/format';
 import { ImageUpload } from '../media/ImageUpload';
-import { Lead, Product, ProductCategory, SiteConfig, Testimonial } from '@/lib/types/entities';
+import { BlogPost, Lead, Product, ProductCategory, SiteConfig, Testimonial } from '@/lib/types/entities';
 
 const categories: ProductCategory[] = [
   'laptops',
@@ -47,6 +47,13 @@ type TestimonialForm = {
   isPublished: boolean;
 };
 
+type BlogForm = {
+  title: string;
+  content: string;
+  images: string;
+  isPublished: boolean;
+};
+
 type ConfigForm = SiteConfig;
 
 const defaultProductForm: ProductForm = {
@@ -72,6 +79,13 @@ const defaultTestimonialForm: TestimonialForm = {
   isPublished: true
 };
 
+const defaultBlogForm: BlogForm = {
+  title: '',
+  content: '',
+  images: '',
+  isPublished: true
+};
+
 const defaultConfigForm: ConfigForm = {
   businessInfo: {
     name: '',
@@ -87,12 +101,11 @@ const defaultConfigForm: ConfigForm = {
     adBannerText: ''
   },
   heroSlides: [],
+  categorySettings: {},
   aboutPage: {
     heroTitle: 'About Foto Palace',
     introParagraphs: [
-      'Foto Palace is your trusted local tech partner in Jorhat. We are known for reliable product recommendations, honest pricing, and quick support.',
-      'From laptops and gaming desktops to printers, CCTV systems, custom assembled desktops, and IT accessories, we help individuals and businesses choose the right technology with confidence.',
-      'We do PC customization end-to-end, and we are the best at tailoring builds to your requirements. Choose the right options and you will always get the best price for your setup.'
+      'Add your store story, team, and photos here — replace this placeholder with real copy about Foto Palace.'
     ],
     whyTitle: 'Why Customers Choose Us',
     whyBullets: [
@@ -110,7 +123,7 @@ const defaultConfigForm: ConfigForm = {
 
 export function AdminDashboardClient() {
   const router = useRouter();
-  const [tab, setTab] = useState<'leads' | 'products' | 'testimonials' | 'settings'>('leads');
+  const [tab, setTab] = useState<'leads' | 'products' | 'testimonials' | 'blogs' | 'settings'>('leads');
   const [token, setToken] = useState<string>('');
   const [authReady, setAuthReady] = useState(false);
   const [user, setUser] = useState<User | null>(null);
@@ -120,6 +133,7 @@ export function AdminDashboardClient() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [blogs, setBlogs] = useState<BlogPost[]>([]);
 
   const [searchLead, setSearchLead] = useState('');
   const [leadCategory, setLeadCategory] = useState<'all' | ProductCategory>('all');
@@ -129,6 +143,8 @@ export function AdminDashboardClient() {
 
   const [testimonialForm, setTestimonialForm] = useState<TestimonialForm>(defaultTestimonialForm);
   const [editingTestimonialId, setEditingTestimonialId] = useState<string | null>(null);
+  const [blogForm, setBlogForm] = useState<BlogForm>(defaultBlogForm);
+  const [editingBlogId, setEditingBlogId] = useState<string | null>(null);
 
   const [configForm, setConfigForm] = useState<ConfigForm>(defaultConfigForm);
 
@@ -211,16 +227,18 @@ export function AdminDashboardClient() {
       setLoading(true);
 
       try {
-        const [leadRes, productRes, testimonialRes, configRes] = await Promise.all([
+        const [leadRes, productRes, testimonialRes, blogRes, configRes] = await Promise.all([
           withAuthFetch('/api/admin/leads', { method: 'GET' }),
           withAuthFetch('/api/admin/products', { method: 'GET' }),
           withAuthFetch('/api/admin/testimonials', { method: 'GET' }),
+          withAuthFetch('/api/admin/blogs', { method: 'GET' }),
           withAuthFetch('/api/admin/config', { method: 'GET' })
         ]);
 
         setLeads(leadRes.leads || []);
         setProducts(productRes.products || []);
         setTestimonials(testimonialRes.testimonials || []);
+        setBlogs(blogRes.blogs || []);
         if (configRes.config) {
           setConfigForm({
             ...defaultConfigForm,
@@ -232,7 +250,8 @@ export function AdminDashboardClient() {
               ...(configRes.config.laptopCustomization || {}),
               categories: configRes.config.laptopCustomization?.categories || defaultConfigForm.laptopCustomization.categories
             },
-            mobileHeroProductIds: configRes.config.mobileHeroProductIds || []
+            mobileHeroProductIds: configRes.config.mobileHeroProductIds || [],
+            categorySettings: configRes.config.categorySettings || {}
           });
         }
       } catch (err) {
@@ -259,9 +278,10 @@ export function AdminDashboardClient() {
     () => ({
       leadCount: leads.length,
       productCount: products.length,
-      publishedTestimonials: testimonials.filter((item) => item.isPublished).length
+      publishedTestimonials: testimonials.filter((item) => item.isPublished).length,
+      publishedBlogs: blogs.filter((item) => item.isPublished).length
     }),
-    [leads.length, products.length, testimonials]
+    [leads.length, products.length, testimonials, blogs]
   );
 
   function exportLeads() {
@@ -400,6 +420,51 @@ export function AdminDashboardClient() {
       setStatus('Testimonial deleted.');
     } catch {
       setStatus('Failed to delete testimonial.');
+    }
+  }
+
+  async function handleBlogSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!token) return;
+
+    try {
+      const payload = {
+        title: blogForm.title.trim(),
+        content: blogForm.content.trim(),
+        images: blogForm.images.split(',').map((img) => img.trim()).filter(Boolean),
+        isPublished: blogForm.isPublished
+      };
+
+      if (editingBlogId) {
+        await withAuthFetch(`/api/admin/blogs/${editingBlogId}`, {
+          method: 'PUT',
+          body: JSON.stringify(payload)
+        });
+      } else {
+        await withAuthFetch('/api/admin/blogs', {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        });
+      }
+
+      const refreshed = await withAuthFetch('/api/admin/blogs', { method: 'GET' });
+      setBlogs(refreshed.blogs || []);
+      setBlogForm(defaultBlogForm);
+      setEditingBlogId(null);
+      setStatus('Blog saved successfully.');
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : 'Failed to save blog.');
+    }
+  }
+
+  async function handleDeleteBlog(id?: string) {
+    if (!id || !token) return;
+    try {
+      await withAuthFetch(`/api/admin/blogs/${id}`, { method: 'DELETE' });
+      setBlogs((prev) => prev.filter((item) => item.id !== id));
+      setStatus('Blog deleted.');
+    } catch {
+      setStatus('Failed to delete blog.');
     }
   }
 
@@ -765,6 +830,71 @@ export function AdminDashboardClient() {
     </form>
   );
 
+  const renderBlogForm = () => (
+    <form className="admin-form" onSubmit={handleBlogSubmit}>
+      <label>
+        Blog Title
+        <input
+          required
+          value={blogForm.title}
+          onChange={(event) => setBlogForm((prev) => ({ ...prev, title: event.target.value }))}
+        />
+      </label>
+      <label className="full-width">
+        Blog Content
+        <textarea
+          rows={10}
+          required
+          value={blogForm.content}
+          onChange={(event) => setBlogForm((prev) => ({ ...prev, content: event.target.value }))}
+          placeholder="Write the full blog article here..."
+        />
+      </label>
+      <label className="full-width">
+        Blog Images
+        <ImageUpload
+          folder="blogs"
+          allowMultiple={true}
+          maxFiles={10}
+          initialUrls={blogForm.images.split(',').map((u) => u.trim()).filter(Boolean)}
+          onUploadComplete={(urls) => setBlogForm((prev) => ({ ...prev, images: urls.join(',') }))}
+        />
+        <input
+          value={blogForm.images}
+          onChange={(event) => setBlogForm((prev) => ({ ...prev, images: event.target.value }))}
+          placeholder="Comma separated image URLs..."
+          style={{ marginTop: '0.5rem', fontSize: '0.8rem' }}
+        />
+      </label>
+      <label className="checkbox-label">
+        <input
+          type="checkbox"
+          checked={blogForm.isPublished}
+          onChange={(event) => setBlogForm((prev) => ({ ...prev, isPublished: event.target.checked }))}
+        />
+        Publish on website
+      </label>
+
+      <div className="button-row">
+        <button className="primary-btn" type="submit">
+          {editingBlogId ? 'Save Changes' : 'Add Blog'}
+        </button>
+        {editingBlogId && (
+          <button
+            className="secondary-btn"
+            type="button"
+            onClick={() => {
+              setEditingBlogId(null);
+              setBlogForm(defaultBlogForm);
+            }}
+          >
+            Cancel Edit
+          </button>
+        )}
+      </div>
+    </form>
+  );
+
   if (!authReady) {
     return <p>Loading admin session...</p>;
   }
@@ -817,6 +947,9 @@ export function AdminDashboardClient() {
         >
           Testimonials
         </button>
+        <button className={tab === 'blogs' ? 'tab active' : 'tab'} onClick={() => setTab('blogs')}>
+          Blogs
+        </button>
         <button
           className={tab === 'settings' ? 'tab active' : 'tab'}
           onClick={() => setTab('settings')}
@@ -837,6 +970,10 @@ export function AdminDashboardClient() {
         <article className="stat-card">
           <p>Published Testimonials</p>
           <h3>{adminStats.publishedTestimonials}</h3>
+        </article>
+        <article className="stat-card">
+          <p>Published Blogs</p>
+          <h3>{adminStats.publishedBlogs}</h3>
         </article>
       </div>
 
@@ -1065,6 +1202,76 @@ export function AdminDashboardClient() {
         </section>
       )}
 
+      {tab === 'blogs' && (
+        <section className="admin-card">
+          {!editingBlogId && (
+            <>
+              <h2>Add Blog</h2>
+              <p className="muted-text">Write full articles with title, content, and images.</p>
+              {renderBlogForm()}
+            </>
+          )}
+
+          <div className="admin-list" style={{ marginTop: editingBlogId ? '0' : '2.5rem' }}>
+            {blogs.map((blog) => (
+              <div key={blog.id || blog.title}>
+                <article className={editingBlogId === blog.id ? 'admin-item editing' : 'admin-item'}>
+                  <div className="admin-item-header">
+                    <h3>{blog.title}</h3>
+                    <div className="badge-row">
+                      <span className={`status-badge ${blog.isPublished ? 'published' : 'hidden'}`}>
+                        {blog.isPublished ? 'Published' : 'Hidden'}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="admin-item-content">
+                    <p className="specs-preview">{blog.content.slice(0, 180)}...</p>
+                  </div>
+                  <div className="admin-item-actions">
+                    <button
+                      className="secondary-btn"
+                      onClick={() => {
+                        setEditingBlogId(blog.id || null);
+                        setBlogForm({
+                          title: blog.title,
+                          content: blog.content,
+                          images: (blog.images || []).join(', '),
+                          isPublished: blog.isPublished
+                        });
+                      }}
+                    >
+                      {editingBlogId === blog.id ? 'Currently Editing...' : 'Edit Blog'}
+                    </button>
+                    <button className="danger-btn" onClick={() => handleDeleteBlog(blog.id)}>
+                      Delete
+                    </button>
+                  </div>
+                </article>
+
+                {editingBlogId === blog.id && (
+                  <div className="inline-edit-form-wrap">
+                    <div className="flex-between mb-4">
+                      <h2 style={{ margin: 0 }}>Editing: {blog.title}</h2>
+                      <button
+                        className="secondary-btn sm"
+                        onClick={() => {
+                          setEditingBlogId(null);
+                          setBlogForm(defaultBlogForm);
+                        }}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                    {renderBlogForm()}
+                  </div>
+                )}
+              </div>
+            ))}
+            {blogs.length === 0 && <p className="empty-state">No blogs yet. Add your first article above.</p>}
+          </div>
+        </section>
+      )}
+
       {tab === 'settings' && (
         <section className="admin-card">
           <h2>Site Settings</h2>
@@ -1261,6 +1468,100 @@ export function AdminDashboardClient() {
                             }}
                             placeholder="Or paste image URL here..."
                             style={{ marginTop: '0.5rem', fontSize: '0.8rem' }}
+                          />
+                        </label>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              </div>
+
+              <div className="form-section mt-10">
+                <h3>Category Images & SEO</h3>
+                <p className="muted-text mb-6">Manage the images and metadata for each product category (Laptops, CCTV, etc.) shown on the homepage.</p>
+                <div className="slides-container">
+                  {categories.map((cat) => (
+                    <article key={cat} className="admin-sub-card">
+                      <div className="flex-between">
+                        <h4>{cat.replace('-', ' ').toUpperCase()}</h4>
+                      </div>
+                      <div className="form-grid-inner">
+                        <label className="full-width">
+                          Category Image (Placeholder replacement)
+                          <ImageUpload
+                            folder="categories"
+                            allowMultiple={false}
+                            initialUrls={configForm.categorySettings?.[cat]?.heroImage ? [configForm.categorySettings[cat]!.heroImage!] : []}
+                            onUploadComplete={(urls) => {
+                              setConfigForm((prev) => ({
+                                ...prev,
+                                categorySettings: {
+                                  ...(prev.categorySettings || {}),
+                                  [cat]: { ...(prev.categorySettings?.[cat] || {}), heroImage: urls[0] || '' }
+                                }
+                              }));
+                            }}
+                          />
+                          <input
+                            type="url"
+                            value={configForm.categorySettings?.[cat]?.heroImage || ''}
+                            onChange={(e) => {
+                              setConfigForm((prev) => ({
+                                ...prev,
+                                categorySettings: {
+                                  ...(prev.categorySettings || {}),
+                                  [cat]: { ...(prev.categorySettings?.[cat] || {}), heroImage: e.target.value }
+                                }
+                              }));
+                            }}
+                            placeholder="Direct image URL..."
+                            style={{ marginTop: '0.5rem', fontSize: '0.8rem' }}
+                          />
+                        </label>
+                        <label>
+                          Hero Title (Landing Page)
+                          <input
+                            value={configForm.categorySettings?.[cat]?.heroTitle || ''}
+                            onChange={(e) => {
+                              setConfigForm((prev) => ({
+                                ...prev,
+                                categorySettings: {
+                                  ...(prev.categorySettings || {}),
+                                  [cat]: { ...(prev.categorySettings?.[cat] || {}), heroTitle: e.target.value }
+                                }
+                              }));
+                            }}
+                          />
+                        </label>
+                        <label>
+                          SEO Title
+                          <input
+                            value={configForm.categorySettings?.[cat]?.seoTitle || ''}
+                            onChange={(e) => {
+                              setConfigForm((prev) => ({
+                                ...prev,
+                                categorySettings: {
+                                  ...(prev.categorySettings || {}),
+                                  [cat]: { ...(prev.categorySettings?.[cat] || {}), seoTitle: e.target.value }
+                                }
+                              }));
+                            }}
+                          />
+                        </label>
+                        <label className="full-width">
+                          SEO Description
+                          <textarea
+                            rows={2}
+                            value={configForm.categorySettings?.[cat]?.seoDescription || ''}
+                            onChange={(e) => {
+                              setConfigForm((prev) => ({
+                                ...prev,
+                                categorySettings: {
+                                  ...(prev.categorySettings || {}),
+                                  [cat]: { ...(prev.categorySettings?.[cat] || {}), seoDescription: e.target.value }
+                                }
+                              }));
+                            }}
                           />
                         </label>
                       </div>

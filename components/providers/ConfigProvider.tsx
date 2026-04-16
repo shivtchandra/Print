@@ -6,6 +6,7 @@ import { AboutPageContent, BusinessInfo, HeroSlide } from '@/lib/types/entities'
 interface ConfigContextType {
   businessInfo: BusinessInfo;
   heroSlides: HeroSlide[];
+  categorySettings?: Record<string, any>;
   aboutPage: AboutPageContent;
   mobileHeroProductIds: string[];
 }

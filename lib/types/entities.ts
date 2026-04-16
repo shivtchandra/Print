@@ -46,6 +46,16 @@ export interface Testimonial {
   createdAt: string;
 }
 
+export interface BlogPost {
+  id?: string;
+  title: string;
+  content: string;
+  images: string[];
+  isPublished: boolean;
+  createdAt: string;
+  updatedAt?: string;
+}
+
 export interface CategoryMeta {
   slug: ProductCategory;
   label: string;
@@ -104,6 +114,7 @@ export interface SiteConfig {
   id?: string;
   businessInfo: BusinessInfo;
   heroSlides: HeroSlide[];
+  categorySettings?: Partial<Record<ProductCategory, Partial<CategoryMeta>>>;
   aboutPage: AboutPageContent;
   laptopCustomization: LaptopCustomizationConfig;
   mobileHeroProductIds?: string[];

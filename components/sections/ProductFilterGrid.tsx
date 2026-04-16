@@ -1,13 +1,14 @@
 'use client';
 
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-
-import { StorefrontImage } from '@/components/media/StorefrontImage';
 import { useMemo, useState } from 'react';
 
-import { Product } from '@/lib/types/entities';
-import { ProductCategory } from '@/lib/types/entities';
+import { StorefrontImage } from '@/components/media/StorefrontImage';
+import { trackContactIntent } from '@/lib/analytics/events';
 import { categoryMeta } from '@/lib/data/catalog';
+import { Product, ProductCategory } from '@/lib/types/entities';
+import { buildProductEnquiryUrl } from '@/lib/whatsapp';
 
 interface ProductFilterGridProps {
   products: Product[];
@@ -55,13 +56,19 @@ export function ProductFilterGrid({ products, currentCategory }: ProductFilterGr
   const categories = useMemo(() => Object.keys(categoryMeta) as ProductCategory[], []);
 
   return (
-    <section className="section">
+    <section className="section" id="products-grid">
       <div className="container">
+        <div className="section-head reveal">
+          <h2>Our <span className="text-accent">{categoryMeta[currentCategory]?.label}</span> Collection</h2>
+          <p>Browse and compare the best {currentCategory} models available in Jorhat.</p>
+        </div>
         <div className="filter-bar reveal">
           {/* Category switcher */}
           <div className="custom-dropdown">
             <button
               className="dropdown-toggle"
+              aria-haspopup="listbox"
+              aria-expanded={isCategoryOpen}
               onClick={() => {
                 setIsCategoryOpen(!isCategoryOpen);
                 setIsBrandOpen(false);
@@ -69,15 +76,17 @@ export function ProductFilterGrid({ products, currentCategory }: ProductFilterGr
               }}
             >
               {categoryMeta[currentCategory]?.label || 'Products'}
-              <span className={`arrow ${isCategoryOpen ? 'up' : ''}`}>
+              <span className={`arrow ${isCategoryOpen ? 'up' : ''}`} aria-hidden="true">
                 <ChevronDown />
               </span>
             </button>
             {isCategoryOpen && (
-              <ul className="dropdown-menu">
+              <ul className="dropdown-menu" role="listbox">
                 {categories.map((option) => (
                   <li
                     key={option}
+                    role="option"
+                    aria-selected={option === currentCategory}
                     onClick={() => {
                       setIsCategoryOpen(false);
                       router.push(`/${option}`);
@@ -95,16 +104,20 @@ export function ProductFilterGrid({ products, currentCategory }: ProductFilterGr
           <div className="custom-dropdown">
             <button 
               className="dropdown-toggle" 
+              aria-haspopup="listbox"
+              aria-expanded={isBrandOpen}
               onClick={() => { setIsBrandOpen(!isBrandOpen); setIsPriceOpen(false); setIsCategoryOpen(false); }}
             >
               {brand === 'all' ? 'All Brands' : brand}
-              <span className={`arrow ${isBrandOpen ? 'up' : ''}`}><ChevronDown /></span>
+              <span className={`arrow ${isBrandOpen ? 'up' : ''}`} aria-hidden="true"><ChevronDown /></span>
             </button>
             {isBrandOpen && (
-              <ul className="dropdown-menu">
+              <ul className="dropdown-menu" role="listbox">
                 {brands.map((option) => (
                   <li 
                     key={option} 
+                    role="option"
+                    aria-selected={brand === option}
                     onClick={() => { setBrand(option); setIsBrandOpen(false); }}
                     className={brand === option ? 'active' : ''}
                   >
@@ -119,14 +132,16 @@ export function ProductFilterGrid({ products, currentCategory }: ProductFilterGr
           <div className="custom-dropdown">
             <button 
               className="dropdown-toggle" 
+              aria-haspopup="listbox"
+              aria-expanded={isPriceOpen}
               onClick={() => { setIsPriceOpen(!isPriceOpen); setIsBrandOpen(false); setIsCategoryOpen(false); }}
             >
               {priceBand === 'all' ? 'All Prices' : 
                priceBand.charAt(0).toUpperCase() + priceBand.slice(1)}
-              <span className={`arrow ${isPriceOpen ? 'up' : ''}`}><ChevronDown /></span>
+              <span className={`arrow ${isPriceOpen ? 'up' : ''}`} aria-hidden="true"><ChevronDown /></span>
             </button>
             {isPriceOpen && (
-              <ul className="dropdown-menu">
+              <ul className="dropdown-menu" role="listbox">
                 {[
                   { value: 'all', label: 'All Prices' },
                   { value: 'budget', label: 'Budget' },
@@ -135,6 +150,8 @@ export function ProductFilterGrid({ products, currentCategory }: ProductFilterGr
                 ].map((option) => (
                   <li 
                     key={option.value} 
+                    role="option"
+                    aria-selected={priceBand === option.value}
                     onClick={() => { setPriceBand(option.value); setIsPriceOpen(false); }}
                     className={priceBand === option.value ? 'active' : ''}
                   >
@@ -155,52 +172,76 @@ export function ProductFilterGrid({ products, currentCategory }: ProductFilterGr
           </div>
         </div>
 
+        {filtered.length === 0 && (
+          <p className="empty-catalog-hint reveal">
+            No products in this category yet. Add real inventory from the admin panel.
+          </p>
+        )}
+
         <div className="product-grid">
-          {filtered.map((product) => (
-            <article className="product-card reveal" key={product.id || product.title}>
-              <div className="product-card-inner">
-                <div className="product-thumb">
-                  <StorefrontImage
-                    src={product.images[0]}
-                    alt={product.title}
-                    fill
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    className="product-image"
-                  />
-                  {product.isFeatured && (
-                    <div className="card-badge featured">Featured</div>
-                  )}
-                </div>
-                
-                <div className="product-info">
-                  <div className="brand-tag">{product.brand}</div>
-                  <h3 className="product-title">{product.title}</h3>
-                  
-                  <div className="product-specs-chips">
-                    {product.specs.slice(0, 3).map((spec) => (
-                      <span key={spec} className="spec-chip">{spec}</span>
-                    ))}
+          {filtered.map((product) => {
+            const waHref = buildProductEnquiryUrl(product.title, product.priceRange);
+            return (
+              <article className="product-card reveal" key={product.id || product.title}>
+                <div className="product-card-inner">
+                  <div className="product-thumb">
+                    <span className="emi-badge" title="EMI available on select models">
+                      EMI
+                    </span>
+                    <StorefrontImage
+                      src={product.images[0]}
+                      alt={`${product.title} — ${product.brand}, Foto Palace Jorhat`}
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      className="product-image"
+                    />
+                    {product.isFeatured && <div className="card-badge featured">Featured</div>}
                   </div>
 
-                  <div className="product-card-footer">
-                    <div className="price-stack">
-                      <span className="price-label">Estimated Price</span>
-                      <span className="price-value">{product.priceRange}</span>
+                  <div className="product-info">
+                    <div className="brand-tag">{product.brand}</div>
+                    <h3 className="product-title">{product.title}</h3>
+
+                    <div className="product-specs-chips">
+                      {product.specs.slice(0, 3).map((spec) => (
+                        <span key={spec} className="spec-chip">
+                          {spec}
+                        </span>
+                      ))}
                     </div>
-                    
-                    <div className="card-actions">
-                      <a href={`/product/${product.id}`} className="view-details-btn">
-                        View Details
-                      </a>
-                      <a href="#enquiry" className="card-enquiry-btn">
-                        Enquire
-                      </a>
+
+                    <div className="product-card-footer">
+                      <div className="price-stack">
+                        <span className="price-label">Estimated Price</span>
+                        <span className="price-value">{product.priceRange}</span>
+                      </div>
+
+                      <div className="card-actions">
+                        <Link href={`/product/${product.id}`} className="view-details-btn">
+                          View Details
+                        </Link>
+                        <a
+                          href={waHref}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="card-enquiry-btn"
+                          onClick={() =>
+                            trackContactIntent({
+                              method: 'whatsapp',
+                              source: 'category_product_grid',
+                              product_title: product.title
+                            })
+                          }
+                        >
+                          Enquire on WhatsApp
+                        </a>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </article>
-          ))}
+              </article>
+            );
+          })}
         </div>
       </div>
     </section>
