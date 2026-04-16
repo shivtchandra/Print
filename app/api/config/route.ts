@@ -9,7 +9,8 @@ export async function GET() {
       businessInfo: config.businessInfo,
       heroSlides: config.heroSlides,
       aboutPage: config.aboutPage,
-      mobileHeroProductIds: config.mobileHeroProductIds ?? []
+      mobileHeroProductIds: config.mobileHeroProductIds ?? [],
+      categorySettings: config.categorySettings ?? {}
     });
   } catch {
     return NextResponse.json({ error: 'Failed to fetch public site config' }, { status: 500 });

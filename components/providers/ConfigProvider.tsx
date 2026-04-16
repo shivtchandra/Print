@@ -1,12 +1,12 @@
 'use client';
 
 import React, { createContext, useContext, useMemo } from 'react';
-import { AboutPageContent, BusinessInfo, HeroSlide } from '@/lib/types/entities';
+import { AboutPageContent, BusinessInfo, HeroSlide, ProductCategory, CategoryMeta } from '@/lib/types/entities';
 
 interface ConfigContextType {
   businessInfo: BusinessInfo;
   heroSlides: HeroSlide[];
-  categorySettings?: Record<string, any>;
+  categorySettings?: Partial<Record<ProductCategory, Partial<CategoryMeta>>>;
   aboutPage: AboutPageContent;
   mobileHeroProductIds: string[];
 }

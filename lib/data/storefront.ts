@@ -66,7 +66,8 @@ export async function getStorefrontConfig() {
         config?.heroSlides && config.heroSlides.length > 0 ? config.heroSlides.filter((s) => s.image?.trim()) : [],
       aboutPage: config?.aboutPage || defaultAboutPage,
       laptopCustomization: config?.laptopCustomization || defaultLaptopCustomization,
-      mobileHeroProductIds: config?.mobileHeroProductIds ?? []
+      mobileHeroProductIds: config?.mobileHeroProductIds ?? [],
+      categorySettings: config?.categorySettings || {}
     };
   } catch {
     return {
