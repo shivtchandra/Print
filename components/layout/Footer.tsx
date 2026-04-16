@@ -5,6 +5,7 @@ import { useConfig } from '@/components/providers/ConfigProvider';
 import { categoryMeta } from '@/lib/data/catalog';
 import { socialLinks } from '@/lib/config';
 import { ProductCategory } from '@/lib/types/entities';
+import { TekDevBadge } from '@/components/ui/TekDevBadge';
 
 const quickLinks = [
   { label: 'Home', href: '/' },
@@ -120,7 +121,10 @@ export function Footer() {
       </div>
 
       <div className="footer-bottom">
-        <div className="container">{businessInfo.copyright}</div>
+        <div className="container" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "12px" }}>
+          <span>{businessInfo.copyright}</span>
+          <TekDevBadge />
+        </div>
       </div>
     </footer>
   );
